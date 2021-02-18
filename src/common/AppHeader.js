@@ -7,6 +7,8 @@ import "./AppHeader.css";
 const Header = Layout.Header;
 
 const AppHeader = (props) => {
+  const { currentUser } = props;
+
   const menu = (
     <Menu>
       <Menu.Item>
@@ -15,7 +17,7 @@ const AppHeader = (props) => {
           rel="noopener noreferrer"
           href="http://www.alipay.com/"
         >
-          1st menu item
+          Thay đổi mật khẩu
         </a>
       </Menu.Item>
       <Menu.Item>
@@ -24,19 +26,12 @@ const AppHeader = (props) => {
           rel="noopener noreferrer"
           href="http://www.taobao.com/"
         >
-          2nd menu item
+          Cài đặt
         </a>
       </Menu.Item>
-      <Menu.Item>
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="http://www.tmall.com/"
-        >
-          3rd menu item
-        </a>
+      <Menu.Item danger onClick={props.onLogout}>
+        Logout
       </Menu.Item>
-      <Menu.Item danger>a danger item</Menu.Item>
     </Menu>
   );
 
@@ -55,8 +50,12 @@ const AppHeader = (props) => {
       </Menu.Item>,
       <Menu.Item key="/profile" className="profile-menu">
         <Dropdown overlay={menu}>
-          <a className="ant-dropdown-link" onClick={(e) => e.preventDefault()}>
-            Hover me <DownOutlined />
+          <a
+            className="ant-dropdown-link"
+            href="/user/me"
+            onClick={(e) => e.preventDefault()}
+          >
+            {currentUser.name} <DownOutlined />
           </a>
         </Dropdown>
       </Menu.Item>,

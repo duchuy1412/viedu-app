@@ -1,24 +1,25 @@
 import { Layout, notification } from "antd";
 import React, { useEffect, useState } from "react";
-import { Redirect, Route, Switch, withRouter } from "react-router-dom";
+import { Route, Switch, useHistory, withRouter } from "react-router-dom";
 import AppHeader from "../common/AppHeader";
 import { ACCESS_TOKEN } from "../constants";
 import Profile from "../user/profile/Profile";
 import Signup from "../user/signup/Signup";
 import { getCurrentUser } from "../util/APIUtils";
-import Board from "./../Board";
 import LoadingIndicator from "./../common/LoadingIndicator";
 import NotFound from "./../common/NotFound";
 import PrivateRoute from "./../common/PrivateRoute";
+import Main from "./../Main";
 import Login from "./../user/login/Login";
 import "./App.css";
 
 const { Content } = Layout;
 
-const App = () => {
+const App = (props) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const history = useHistory();
 
   notification.config({
     placement: "topRight",
@@ -49,7 +50,8 @@ const App = () => {
     setCurrentUser(null);
     setIsAuthenticated(false);
 
-    <Redirect to={redirectTo} />;
+    //redirect
+    history.push(redirectTo);
 
     notification[notificationType]({
       message: "Viedu App",
@@ -62,13 +64,14 @@ const App = () => {
       message: "Viedu App",
       description: "You're successfully logged in.",
     });
-    // loadCurrentUser();
-    <Redirect to="/" />;
+    loadCurrentUser();
+
+    history.push("/");
   }
 
   useEffect(() => {
-    // loadCurrentUser();
-  });
+    loadCurrentUser();
+  }, []);
 
   if (isLoading) {
     return <LoadingIndicator />;
@@ -84,7 +87,13 @@ const App = () => {
       <Content className="app-content">
         <div className="container">
           <Switch>
-            <Route exact path="/" render={() => <Board />}></Route>
+            <Route
+              exact
+              path="/"
+              render={(props) =>
+                isAuthenticated ? <Main /> : "Please login before! :)"
+              }
+            ></Route>
             <Route
               exact
               path="/login"

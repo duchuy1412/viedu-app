@@ -24,7 +24,7 @@ const LoginForm = (props) => {
 
     login(loginRequest)
       .then((response) => {
-        localStorage.setItem(ACCESS_TOKEN, response.accessToken);
+        localStorage.setItem(ACCESS_TOKEN, response.token);
         props.onLogin();
       })
       .catch((error) => {

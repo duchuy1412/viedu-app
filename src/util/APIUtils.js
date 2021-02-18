@@ -1,4 +1,8 @@
-import { API_BASE_URL, ACCESS_TOKEN } from "../constants";
+import {
+  API_BASE_URL,
+  ACCESS_TOKEN,
+  PRESENTATIONS_LIST_SIZE,
+} from "../constants";
 
 const request = (options) => {
   const headers = new Headers({
@@ -25,23 +29,23 @@ const request = (options) => {
   );
 };
 
-// export function getAllPolls(page, size) {
-//     page = page || 0;
-//     size = size || POLL_LIST_SIZE;
+export function getAllPresentations(page, size) {
+  page = page || 0;
+  size = size || PRESENTATIONS_LIST_SIZE;
 
-//     return request({
-//         url: API_BASE_URL + "/polls?page=" + page + "&size=" + size,
-//         method: 'GET'
-//     });
-// }
+  return request({
+    url: API_BASE_URL + "/presentations?page=" + page + "&size=" + size,
+    method: "GET",
+  });
+}
 
-// export function createPoll(pollData) {
-//     return request({
-//         url: API_BASE_URL + "/polls",
-//         method: 'POST',
-//         body: JSON.stringify(pollData)
-//     });
-// }
+export function createPresentation(presentationData) {
+  return request({
+    url: API_BASE_URL + "/presentation",
+    method: "POST",
+    body: JSON.stringify(presentationData),
+  });
+}
 
 // export function castVote(voteData) {
 //     return request({
