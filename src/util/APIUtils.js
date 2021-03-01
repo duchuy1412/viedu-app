@@ -39,6 +39,20 @@ export function getAllPresentations(page, size) {
   });
 }
 
+export function getPresentation(presentationId) {
+  return request({
+    url: API_BASE_URL + "/presentation/" + presentationId,
+    method: "GET",
+  });
+}
+
+export function countPresentations() {
+  return request({
+    url: API_BASE_URL + "/presentations/count",
+    method: "GET",
+  });
+}
+
 export function createPresentation(presentationData) {
   return request({
     url: API_BASE_URL + "/presentation",
@@ -47,13 +61,83 @@ export function createPresentation(presentationData) {
   });
 }
 
-// export function castVote(voteData) {
-//     return request({
-//         url: API_BASE_URL + "/polls/" + voteData.pollId + "/votes",
-//         method: 'POST',
-//         body: JSON.stringify(voteData)
-//     });
-// }
+export function updatePresentation(presentationData) {
+  return request({
+    url: API_BASE_URL + "/presentation",
+    method: "PUT",
+    body: JSON.stringify(presentationData),
+  });
+}
+
+export function addToPresentation(question, presentationId) {
+  return request({
+    url: API_BASE_URL + "/presentation/" + presentationId + "/addQuestion",
+    method: "PUT",
+    body: JSON.stringify(question),
+  });
+}
+
+export function updateToPresentation(question, presentationId) {
+  return request({
+    url: API_BASE_URL + "/presentation/" + presentationId + "/updateQuestion",
+    method: "PUT",
+    body: JSON.stringify(question),
+  });
+}
+
+export function deletePresentation(presentationId) {
+  return request({
+    url: API_BASE_URL + "/presentation/" + presentationId,
+    method: "DELETE",
+  });
+}
+
+export function getAllQuestions(page, size) {
+  page = page || 0;
+  size = size || PRESENTATIONS_LIST_SIZE;
+
+  return request({
+    url: API_BASE_URL + "/questions?page=" + page + "&size=" + size,
+    method: "GET",
+  });
+}
+
+export function countQuestions() {
+  return request({
+    url: API_BASE_URL + "/questions/count",
+    method: "GET",
+  });
+}
+
+export function createQuestion(questionData) {
+  return request({
+    url: API_BASE_URL + "/question",
+    method: "POST",
+    body: JSON.stringify(questionData),
+  });
+}
+
+export function updateQuestion(questionData) {
+  return request({
+    url: API_BASE_URL + "/question",
+    method: "PUT",
+    body: JSON.stringify(questionData),
+  });
+}
+
+export function getQuestion(questionId) {
+  return request({
+    url: API_BASE_URL + "/question/" + questionId,
+    method: "GET",
+  });
+}
+
+export function deleteQuestion(questionId) {
+  return request({
+    url: API_BASE_URL + "/question/" + questionId,
+    method: "DELETE",
+  });
+}
 
 export function login(loginRequest) {
   return request({
