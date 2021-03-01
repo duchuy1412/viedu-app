@@ -12,20 +12,12 @@ const AppHeader = (props) => {
   const menu = (
     <Menu>
       <Menu.Item>
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="http://www.alipay.com/"
-        >
+        <a target="_blank" rel="noopener noreferrer" href="/change-password">
           Thay đổi mật khẩu
         </a>
       </Menu.Item>
       <Menu.Item>
-        <a
-          target="_blank"
-          rel="noopener noreferrer"
-          href="http://www.taobao.com/"
-        >
+        <a target="_blank" rel="noopener noreferrer" href="/settings">
           Cài đặt
         </a>
       </Menu.Item>
@@ -43,8 +35,8 @@ const AppHeader = (props) => {
           <Icon type="home" className="nav-icon" />
         </Link>
       </Menu.Item>,
-      <Menu.Item key="/poll/new">
-        <Link to="/poll/new">
+      <Menu.Item key="/presentations">
+        <Link to="/presentations">
           <img src={pollIcon} alt="poll" className="poll-icon" />
         </Link>
       </Menu.Item>,

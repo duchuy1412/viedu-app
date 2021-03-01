@@ -1,6 +1,12 @@
 import { Layout, notification } from "antd";
 import React, { useEffect, useState } from "react";
-import { Route, Switch, useHistory, withRouter } from "react-router-dom";
+import {
+  Redirect,
+  Route,
+  Switch,
+  useHistory,
+  withRouter,
+} from "react-router-dom";
 import AppHeader from "../common/AppHeader";
 import { ACCESS_TOKEN } from "../constants";
 import Profile from "../user/profile/Profile";
@@ -9,9 +15,12 @@ import { getCurrentUser } from "../util/APIUtils";
 import LoadingIndicator from "./../common/LoadingIndicator";
 import NotFound from "./../common/NotFound";
 import PrivateRoute from "./../common/PrivateRoute";
-import Main from "./../Main";
+import Presentations from "../pages/presentation/Presentations";
 import Login from "./../user/login/Login";
 import "./App.css";
+import PublicRoute from "../common/PublicRoute";
+import Home from "../pages/landing/Home";
+import Questions from "../pages/question/Questions";
 
 const { Content } = Layout;
 
@@ -32,6 +41,7 @@ const App = (props) => {
     getCurrentUser()
       .then((response) => {
         setCurrentUser(response);
+        console.log(response);
         setIsAuthenticated(true);
         setIsLoading(false);
       })
@@ -45,13 +55,12 @@ const App = (props) => {
     notificationType = "success",
     description = "You're successfully logged out."
   ) {
+    history.push("/");
+
     localStorage.removeItem(ACCESS_TOKEN);
 
     setCurrentUser(null);
     setIsAuthenticated(false);
-
-    //redirect
-    history.push(redirectTo);
 
     notification[notificationType]({
       message: "Viedu App",
@@ -87,18 +96,25 @@ const App = (props) => {
       <Content className="app-content">
         <div className="container">
           <Switch>
-            <Route
-              exact
+            {isAuthenticated && <Redirect exact from="/" to="/presentations" />}
+            <PublicRoute
+              restricted={false}
               path="/"
-              render={(props) =>
-                isAuthenticated ? <Main /> : "Please login before! :)"
-              }
-            ></Route>
-            <Route
+              component={Home}
               exact
+              authenticated={isAuthenticated}
+            />
+            <PublicRoute
+              exact
+              restricted={true}
               path="/login"
-              render={(props) => <Login onLogin={handleLogin} {...props} />}
-            ></Route>
+              authenticated={isAuthenticated}
+              component={(props) =>
+                !isAuthenticated ? (
+                  <Login onLogin={handleLogin} {...props} />
+                ) : null
+              }
+            />
             <Route exac path="/signup" component={Signup}></Route>
             <Route
               path="/users/:username"
@@ -109,14 +125,30 @@ const App = (props) => {
                   {...props}
                 />
               )}
-            ></Route>
+            />
+            {/* <PrivateRoute
+              authenticated={isAuthenticated}
+              path="/presentations"
+              component={Presentations}
+              handleLogout={handleLogout}
+            />
             <PrivateRoute
               authenticated={isAuthenticated}
-              path="/poll/new"
-              component={null}
+              path="/questions"
+              component={Questions}
               handleLogout={handleLogout}
-            ></PrivateRoute>
-            <Route component={NotFound}></Route>
+            /> */}
+            <Route
+              path="/presentations"
+              component={Presentations}
+              handleLogout={handleLogout}
+            />
+            <Route
+              path="/questions"
+              component={Questions}
+              handleLogout={handleLogout}
+            />
+            <Route component={NotFound} />
           </Switch>
         </div>
       </Content>
