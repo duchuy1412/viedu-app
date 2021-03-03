@@ -41,7 +41,7 @@ const App = (props) => {
     getCurrentUser()
       .then((response) => {
         setCurrentUser(response);
-        console.log(response);
+        // console.log(response);
         setIsAuthenticated(true);
         setIsLoading(false);
       })

@@ -1,13 +1,11 @@
+import { LoadingOutlined } from "@ant-design/icons";
 import React from "react";
-import { Spin, Icon } from "antd";
+import { Spin } from "antd";
 
 export default function LoadingIndicator(props) {
-  const antIcon = (
-    <Icon type="loading-3-quarters" style={{ fontSize: 30 }} spin />
-  );
   return (
     <Spin
-      indicator={antIcon}
+      indicator={<LoadingOutlined />}
       style={{ display: "block", textAlign: "center", marginTop: 30 }}
     />
   );

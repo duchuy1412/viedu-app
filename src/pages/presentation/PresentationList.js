@@ -95,22 +95,31 @@ function PresentationList(props) {
   }
 
   useEffect(() => {
+    let mounted = true;
+
     setLoading(true);
-    countPresentations().then((response) =>
-      setPagination((p) => ({ ...p, total: response }))
-    );
+    countPresentations().then((response) => {
+      if (mounted) setPagination((p) => ({ ...p, total: response }));
+    });
     setLoading(false);
+
+    return () => (mounted = false);
   }, []);
 
   useEffect(() => {
+    let mounted = true;
     setLoading(true);
 
     getAllPresentations(pagination.current, pagination.pageSize).then(
       (response) => {
-        setData(response);
-        setLoading(false);
+        if (mounted) {
+          setData(response);
+          setLoading(false);
+        }
       }
     );
+
+    return () => (mounted = false);
   }, [pagination]);
 
   const handleTableChange = (pagination, filters, sorter) => {

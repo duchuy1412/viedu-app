@@ -1,7 +1,6 @@
-import { DownOutlined } from "@ant-design/icons";
-import { Dropdown, Icon, Layout, Menu } from "antd";
+import { DownOutlined, NotificationOutlined } from "@ant-design/icons";
+import { Dropdown, Layout, Menu, Typography } from "antd";
 import { Link, withRouter } from "react-router-dom";
-import pollIcon from "../poll.svg";
 import "./AppHeader.css";
 
 const Header = Layout.Header;
@@ -27,21 +26,28 @@ const AppHeader = (props) => {
     </Menu>
   );
 
+  const notification = (
+    <Menu>
+      <Menu.Item>Notification!</Menu.Item>
+    </Menu>
+  );
+
   let menuItems;
   if (props.currentUser) {
     menuItems = [
-      <Menu.Item key="/">
-        <Link to="/">
-          <Icon type="home" className="nav-icon" />
-        </Link>
-      </Menu.Item>,
-      <Menu.Item key="/presentations">
-        <Link to="/presentations">
-          <img src={pollIcon} alt="poll" className="poll-icon" />
-        </Link>
+      <Menu.Item key="/notification">
+        <Dropdown overlay={notification} trigger={["click"]}>
+          <a
+            className="ant-dropdown-link"
+            href="/notification"
+            onClick={(e) => e.preventDefault()}
+          >
+            <NotificationOutlined style={{ fontSize: 25 }} />
+          </a>
+        </Dropdown>
       </Menu.Item>,
       <Menu.Item key="/profile" className="profile-menu">
-        <Dropdown overlay={menu}>
+        <Dropdown overlay={menu} trigger={["click"]}>
           <a
             className="ant-dropdown-link"
             href="/user/me"
@@ -66,9 +72,9 @@ const AppHeader = (props) => {
   return (
     <Header className="app-header">
       <div className="container">
-        <span className="app-title">
+        <Typography.Text className="app-title">
           <Link to="/">VIEDU APP</Link>
-        </span>
+        </Typography.Text>
         <Menu
           className="app-menu"
           mode="horizontal"

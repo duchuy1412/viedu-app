@@ -1,6 +1,7 @@
-import React from "react";
-import { Row, Col, Typography } from "antd";
+import { Col, Row, Typography } from "antd";
 import PropTypes from "prop-types";
+import React from "react";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 
 SingleSlide.propTypes = {
@@ -22,12 +23,22 @@ const StyledSlide = styled.div`
   border-radius: 3px;
 `;
 function SingleSlide(props) {
+  const { isActive, text } = props;
+
+  const slide = useSelector((state) => state.slides);
+
   return (
-    <StyledSlide isActive={props.isActive}>
+    <StyledSlide isActive={isActive}>
       <Row>
         <Col span={20} offset={2}>
           <Text style={{ width: "100%", fontWeight: "bold" }} ellipsis>
-            {props.text ? props.text : "No title"}
+            {isActive
+              ? slide.current.title
+                ? slide.current.title
+                : "No title"
+              : text
+              ? text
+              : "No title"}
           </Text>
         </Col>
       </Row>
