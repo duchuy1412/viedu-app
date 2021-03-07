@@ -151,6 +151,14 @@ export function deleteQuestion(questionId) {
   });
 }
 
+export function createGame(gameData) {
+  return request({
+    url: API_BASE_URL + "/game",
+    method: "POST",
+    body: JSON.stringify(gameData),
+  });
+}
+
 export function login(loginRequest) {
   return request({
     url: API_BASE_URL + "/auth/signin",

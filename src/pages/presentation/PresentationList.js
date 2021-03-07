@@ -53,9 +53,10 @@ function PresentationList(props) {
       key: "action",
       render: (text, record) => (
         <Space size="middle">
-          <Button type="primary" href={`/presentations/${record.id}/edit`}>
-            Edit
+          <Button type="primary" href={`/play?quizId=${record.id}`}>
+            Play
           </Button>
+          <Button href={`/presentations/${record.id}/edit`}>Edit</Button>
           <Button danger onClick={() => confirm(record.id)}>
             Delete
           </Button>
