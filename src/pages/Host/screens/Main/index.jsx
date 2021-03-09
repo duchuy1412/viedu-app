@@ -19,11 +19,11 @@ function Main(props) {
 
   const dispatch = useDispatch();
 
-  function handleSubmit(values) {
+  async function handleSubmit(values) {
     const gameData = Object.assign({}, values);
     // console.log(log);
 
-    createGame(gameData)
+    await createGame(gameData)
       .then((response) => {
         dispatch(currentGame(response));
       })

@@ -1,53 +1,31 @@
-import React, { useState } from "react";
-import { Button, Input, Form, message } from "antd";
-import PropTypes from "prop-types";
+import { Button } from "antd";
 import InputPIN from "pages/Audience/components/InputPIN";
-import SockJS from "sockjs-client";
-import Stomp from "stompjs";
-import { WS_BASE_URL } from "constants/index";
-import { useHistory, useRouteMatch, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useHistory, useRouteMatch } from "react-router-dom";
 
 Pin.propTypes = {};
 
 function Pin(props) {
   const [pin, setPin] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const history = useHistory();
   const match = useRouteMatch();
-  // const location = useLocation();
 
   const hanldeJoin = () => {
-    // console.log();
-    connect();
+    setLoading(true);
+
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    // verify PIN and then allow user create name
+    history.push(`${match.url}/name`, { pin: pin });
   };
 
   const onChange = (value) => {
     setPin(value);
   };
-
-  var stompClient = null;
-
-  function connect() {
-    let serverUrl = WS_BASE_URL;
-    let ws = new SockJS(serverUrl);
-    stompClient = Stomp.over(ws);
-
-    stompClient.connect({}, onConnected, onError);
-  }
-
-  function onConnected() {
-    // Subscribe to the Game
-    stompClient.subscribe(`/quiz/${pin}`, onMessageReceived);
-
-    history.push(`${match.url}/name`, { pin: pin });
-  }
-
-  function onError(error) {
-    message.error(
-      "Could not connect to server. Please refresh this page to try again!"
-    );
-  }
-
-  function onMessageReceived(payload) {}
 
   return (
     <div>
@@ -57,7 +35,7 @@ function Pin(props) {
         onChange={onChange}
         maxLength={6}
       />
-      <Button type="primary" onClick={hanldeJoin}>
+      <Button loading={loading} type="primary" onClick={hanldeJoin}>
         Join
       </Button>
     </div>

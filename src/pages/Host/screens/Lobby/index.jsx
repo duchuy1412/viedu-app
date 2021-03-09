@@ -20,7 +20,6 @@ function Lobby(props) {
   const games = useSelector((state) => state.games);
   const game = games.current;
 
-  console.log(game);
   const quizId = query.get("quizId");
 
   var stompClient = null;
@@ -79,35 +78,44 @@ function Lobby(props) {
     }
 
     if (receivedMessage.type === "JOIN") {
-      let newGuest = {
-        username: receivedMessage.sender,
-        point: 0,
-      };
-      dispatch(addGuest(newGuest));
+      receivedMessage.content = receivedMessage.sender + " joined!";
+      // dispatch(
+      //   addGuest({
+      //     username: receivedMessage.sender,
+      //     point: 0,
+      //   })
+      // );
+      message.success(receivedMessage.content);
     }
-
-    message.success(receivedMessage.content);
   }
 
   useEffect(() => {
     connect();
-  });
+  }, [connect]);
 
   return (
     <div>
       <div>
         Join at <h5>viedu.live/audience</h5> with PIN: <h1>{game.pin}</h1>
       </div>
-      <div>
-        {game.guests
-          ? game.guests.map((guest) => (
-              <span>
-                <h3>{guest.username}</h3>
-                <br />
-              </span>
-            ))
-          : null}
-      </div>
+    </div>
+  );
+}
+
+function BoardName(props) {
+  const games = useSelector((state) => state.games);
+  const guests = games.guests;
+
+  return (
+    <div>
+      {guests
+        ? guests.map((guest, index) => (
+            <span key={index}>
+              <h3>{guest.username}</h3>
+              <br />
+            </span>
+          ))
+        : null}
     </div>
   );
 }

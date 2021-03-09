@@ -1,27 +1,28 @@
+import { Button, Input, message } from "antd";
+import { WS_BASE_URL } from "constants/index";
 import React, { useState } from "react";
-import PropTypes from "prop-types";
-import { Input, Button, message } from "antd";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { WS_BASE_URL } from "constants/index";
 
 Name.propTypes = {};
 
 function Name(props) {
   const history = useHistory();
+  const match = useRouteMatch();
   const location = useLocation();
   const { state } = location;
-  console.log(history);
 
   const [name, setName] = useState("");
 
-  const onChange = (value) => {
-    setName(value);
+  const onChange = (e) => {
+    setName(e.target.value);
   };
 
   const hanldeOk = () => {
     connect();
+
+    history.push(`${match.url}/lobby`);
   };
 
   var stompClient = null;
@@ -35,6 +36,8 @@ function Name(props) {
   }
 
   function onConnected() {
+    stompClient.subscribe(`/quiz/${state.pin}`, onMessageReceived);
+
     // Tell name of client to the server
     stompClient.send(
       `/app/game.addUser/${state.pin}`,
@@ -52,6 +55,8 @@ function Name(props) {
       "Could not connect to server. Please refresh this page to try again!"
     );
   }
+
+  function onMessageReceived(payload) {}
 
   return (
     <div>

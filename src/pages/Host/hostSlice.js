@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { message } from "antd";
 
-const initGame = { current: {} };
+const initGame = { current: {}, guests: [] };
 
 const game = createSlice({
   name: "hostGame",
@@ -11,7 +11,8 @@ const game = createSlice({
       state.current = action.payload;
     },
     addGuest: (state, action) => {
-      state.current.guests = [...state.current.guests, action.payload];
+      state.guests = [...state.guests, action.payload];
+      // console.log(action.payload);
     },
   },
   extraReducers: {},

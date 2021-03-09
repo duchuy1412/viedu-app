@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 Instruction.propTypes = {};
 
 function Instruction(props) {
-  return <div>Instruction</div>;
+  return <div>See your name ... </div>;
 }
 
 export default Instruction;
