@@ -159,6 +159,21 @@ export function createGame(gameData) {
   });
 }
 
+export function updateGame(gameData) {
+  return request({
+    url: API_BASE_URL + "/game",
+    method: "PUT",
+    body: JSON.stringify(gameData),
+  });
+}
+
+export function checkExistByPIN(pin) {
+  return request({
+    url: API_BASE_URL + "/games/checkExistByPIN?pin=" + pin,
+    method: "GET",
+  });
+}
+
 export function login(loginRequest) {
   return request({
     url: API_BASE_URL + "/auth/signin",

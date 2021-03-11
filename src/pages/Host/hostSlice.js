@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { message } from "antd";
 
-const initGame = { current: {}, guests: [] };
+const initGame = { current: {} };
 
 const game = createSlice({
   name: "hostGame",
@@ -10,14 +10,10 @@ const game = createSlice({
     currentGame: (state, action) => {
       state.current = action.payload;
     },
-    addGuest: (state, action) => {
-      state.guests = [...state.guests, action.payload];
-      // console.log(action.payload);
-    },
   },
   extraReducers: {},
 });
 
 const { reducer, actions } = game;
-export const { currentGame, addGuest } = actions;
+export const { currentGame } = actions;
 export default reducer;

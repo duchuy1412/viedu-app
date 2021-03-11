@@ -29,7 +29,9 @@ function Main(props) {
       })
       .catch((error) => console.log(error));
 
-    history.push(`${match.url}/lobby?quizId=${quizId}`);
+    history.push(`${match.url}/lobby?quizId=${quizId}`, {
+      rootPath: match.url,
+    });
   }
 
   useEffect(() => {

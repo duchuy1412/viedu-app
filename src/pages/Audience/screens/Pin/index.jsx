@@ -2,7 +2,7 @@ import { Button } from "antd";
 import InputPIN from "pages/Audience/components/InputPIN";
 import React, { useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
-
+import { checkExistByPIN } from "util/APIUtils";
 Pin.propTypes = {};
 
 function Pin(props) {
@@ -12,15 +12,25 @@ function Pin(props) {
   const history = useHistory();
   const match = useRouteMatch();
 
-  const hanldeJoin = () => {
+  const hanldeJoin = async () => {
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-
-    // verify PIN and then allow user create name
-    history.push(`${match.url}/name`, { pin: pin });
+    // verify PIN
+    await checkExistByPIN(pin)
+      .then((res) => {
+        //then allow user create name
+        if (res === true) {
+          setLoading(false);
+          history.push(`${match.url}/name`, { rootPath: match.url, pin: pin });
+        } else {
+          setLoading(false);
+          alert("PIN is not correct. Try again!");
+        }
+      })
+      .catch((error) => {
+        setLoading(false);
+        alert("An error has occurred!");
+      });
   };
 
   const onChange = (value) => {

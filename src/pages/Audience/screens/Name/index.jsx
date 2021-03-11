@@ -1,7 +1,7 @@
 import { Button, Input, message } from "antd";
 import { WS_BASE_URL } from "constants/index";
-import React, { useState } from "react";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useHistory, useLocation } from "react-router-dom";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 
@@ -9,7 +9,6 @@ Name.propTypes = {};
 
 function Name(props) {
   const history = useHistory();
-  const match = useRouteMatch();
   const location = useLocation();
   const { state } = location;
 
@@ -21,8 +20,6 @@ function Name(props) {
 
   const hanldeOk = () => {
     connect();
-
-    history.push(`${match.url}/lobby`);
   };
 
   var stompClient = null;
@@ -56,13 +53,28 @@ function Name(props) {
     );
   }
 
-  function onMessageReceived(payload) {}
+  function onMessageReceived(payload) {
+    // console.log(JSON.parse(payload.body));
+
+    history.push(`${state.rootPath}/lobby`, {
+      pin: state.pin,
+      nickname: name,
+    });
+  }
+
+  useEffect(() => {
+    return () => {
+      if (stompClient !== null) {
+        stompClient.disconnect();
+      }
+    };
+  });
 
   return (
     <div>
       <Input
         placeholder="Enter a nick name"
-        maxLength={6}
+        maxLength={15}
         onChange={onChange}
       />
       <Button type="primary" onClick={hanldeOk}>

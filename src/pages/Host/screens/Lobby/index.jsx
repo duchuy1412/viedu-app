@@ -1,11 +1,12 @@
-import { message } from "antd";
-import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Button, message } from "antd";
+import React, { useEffect, useState } from "react";
+import { useHistory, useLocation } from "react-router-dom";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import { WS_BASE_URL } from "constants/index";
 import { useSelector, useDispatch } from "react-redux";
-import { addGuest } from "./../../hostSlice";
+import { currentGame } from "./../../hostSlice";
+import { updateGame } from "util/APIUtils";
 
 Lobby.propTypes = {};
 
@@ -19,9 +20,10 @@ function Lobby(props) {
   const dispatch = useDispatch();
   const games = useSelector((state) => state.games);
   const game = games.current;
+  const location = useLocation();
+  const history = useHistory();
 
   const quizId = query.get("quizId");
-
   var stompClient = null;
 
   function connect() {
@@ -33,6 +35,11 @@ function Lobby(props) {
   }
 
   function onConnected() {
+    // update game to server
+    updateGame({ ...game, gameStatus: "GOING_ON" })
+      .then((res) => dispatch(currentGame(res)))
+      .catch((error) => console.log(error.message));
+
     // Subscribe to the Game
     stompClient.subscribe(`/quiz/${game.pin}`, onMessageReceived);
 
@@ -54,65 +61,66 @@ function Lobby(props) {
     );
   }
 
-  function sendMessage(event) {
-    var messageContent = "Message " + Math.floor(Math.random() * 1000);
-    if (messageContent && stompClient) {
-      var chatMessage = {
-        sender: "userHost",
-        content: messageContent,
-        type: "INTERACT",
-      };
-      stompClient.send(
-        "/app/game.sendMessage",
-        {},
-        JSON.stringify(chatMessage)
-      );
-    }
-  }
+  const [playersJoined, setPlayersJoined] = useState([]);
 
   function onMessageReceived(payload) {
     var receivedMessage = JSON.parse(payload.body);
 
-    if (receivedMessage.type === "HOST") {
-      receivedMessage.content = receivedMessage.sender + " hosted!";
+    if (receivedMessage.type === "JOIN") {
+      setPlayersJoined((playersJoined) => [
+        ...playersJoined,
+        {
+          nickname: receivedMessage.sender,
+          point: 0,
+        },
+      ]);
     }
 
-    if (receivedMessage.type === "JOIN") {
-      receivedMessage.content = receivedMessage.sender + " joined!";
-      // dispatch(
-      //   addGuest({
-      //     username: receivedMessage.sender,
-      //     point: 0,
-      //   })
-      // );
-      message.success(receivedMessage.content);
+    if (receivedMessage.type === "LEAVE") {
+      setPlayersJoined(
+        playersJoined.filter(
+          (player) => player.nickname !== receivedMessage.sender
+        )
+      );
     }
+  }
+
+  function handleStart() {
+    history.push(`${location.state.rootPath}/ingame?quizId=${quizId}`);
   }
 
   useEffect(() => {
     connect();
-  }, [connect]);
+
+    return () => {
+      if (stompClient !== null) {
+        stompClient.disconnect();
+      }
+      updateGame({ ...game, players: playersJoined })
+        .then((res) => {})
+        .catch((error) => console.log(error.message));
+    };
+  }, []);
 
   return (
     <div>
       <div>
         Join at <h5>viedu.live/audience</h5> with PIN: <h1>{game.pin}</h1>
       </div>
+      <Button onClick={handleStart}>Start</Button>
+      <BoardName list={playersJoined} />
     </div>
   );
 }
 
 function BoardName(props) {
-  const games = useSelector((state) => state.games);
-  const guests = games.guests;
-
+  const { list } = props;
   return (
     <div>
-      {guests
-        ? guests.map((guest, index) => (
+      {list
+        ? list.map((player, index) => (
             <span key={index}>
-              <h3>{guest.username}</h3>
-              <br />
+              <h3>{player.nickname} </h3>
             </span>
           ))
         : null}
