@@ -13,6 +13,8 @@ var stompClient = null;
 
 const { Countdown } = Statistic;
 
+const answerOptions = ["A", "B", "C", "D"];
+
 function InGame(props) {
   const history = useHistory();
   const games = useSelector((state) => state.games);
@@ -23,10 +25,10 @@ function InGame(props) {
 
   const { presentationId } = game;
 
-  const rendered = useRef(1);
-  useEffect(() => {
-    rendered.current = rendered.current + 1;
-  });
+  // const rendered = useRef(1);
+  // useEffect(() => {
+  //   rendered.current = rendered.current + 1;
+  // });
 
   function connect() {
     let serverUrl = WS_BASE_URL;
@@ -164,7 +166,7 @@ function InGame(props) {
 
   return (
     <div>
-      rendered : {rendered.current}
+      {/* rendered : {rendered.current} */}
       {presentation.questionList ? (
         <>
           <div>
@@ -185,7 +187,9 @@ function InGame(props) {
             <ul>
               {question.data.answers
                 ? question.data.answers.map((a, index) => (
-                    <li key={index}>{a.text}</li>
+                    <li key={index}>
+                      {answerOptions[index]}. {a.text}
+                    </li>
                   ))
                 : null}
             </ul>

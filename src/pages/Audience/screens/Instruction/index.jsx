@@ -17,7 +17,7 @@ function Instruction(props) {
 
   const [question, setQuestion] = useState(null);
   const [selected, setSelected] = useState(false);
-  const [screen, setScreen] = useState("SC_ANSWER"); // Screen state: SC_ANSWER, SC_WAIT, SC_RESULT
+  const [screen, setScreen] = useState({ name: "SC_ANSWER", info: {} }); // Screen state: SC_ANSWER, SC_WAIT, SC_RESULT
 
   let startTime = useRef(null);
 
@@ -25,6 +25,8 @@ function Instruction(props) {
     let receivedMessage = JSON.parse(payload.body);
 
     if (receivedMessage.type === "SEND_QUESTION") {
+      setScreen({ name: "SC_ANSWER", info: {} });
+
       let messages = receivedMessage.content.split("|");
       // console.log(messages);
       setSelected(false);
@@ -38,10 +40,19 @@ function Instruction(props) {
     }
 
     if (receivedMessage.type === "SKIP") {
-      setSelected(true);
+      // setSelected(true);
+      // if (!selected) {
+      //   setScreen({
+      //     name: "SC_RESULT",
+      //     info: { status: "0", title: "HALF TIME" },
+      //   });
+      // }
     }
 
     if (receivedMessage.type === "INTERACT") {
+      let status = receivedMessage.content.substring(0, 1); // status: 1 => correct, 0 => incorrect
+      let point = receivedMessage.content.substring(1);
+      setScreen({ name: "SC_RESULT", info: { status: status, title: point } });
     }
   }, []);
 
@@ -123,33 +134,57 @@ function Instruction(props) {
     </Button>
   ));
 
-  return question !== null ? (
-    <div>
-      {!selected ? (
-        question.questionType === "QUESTION_CHOICE_ANSWER" ? (
-          <span>
-            <Space>{fourButtonOptions}</Space>
-          </span>
-        ) : question.questionType === "QUESTION_TRUE_FALSE" ? (
-          <span>
-            <Space>{twoButtonOptions}</Space>
-          </span>
+  return (
+    <>
+      {screen.name === "SC_ANSWER" ? (
+        question !== null ? (
+          <div>
+            {!selected ? (
+              question.questionType === "QUESTION_CHOICE_ANSWER" ? (
+                <span>
+                  <Space>{fourButtonOptions}</Space>
+                </span>
+              ) : question.questionType === "QUESTION_TRUE_FALSE" ? (
+                <span>
+                  <Space>{twoButtonOptions}</Space>
+                </span>
+              ) : (
+                <span>
+                  <Input />
+                </span>
+              )
+            ) : (
+              <Result
+                status="success"
+                title="Waiting for the result"
+                extra={[]}
+              />
+            )}
+          </div>
         ) : (
-          <span>
-            <Input />
-          </span>
+          <Result
+            status="info"
+            title="You can see your name at the podium"
+            subTitle="Waiting for host to start game"
+            extra={[]}
+          />
         )
-      ) : (
-        <Result status="success" title="Waiting for the result" extra={[]} />
-      )}
-    </div>
-  ) : (
-    <Result
-      status="info"
-      title="You can see your name at the podium"
-      subTitle="Waiting for host to start game"
-      extra={[]}
-    />
+      ) : null}
+      {screen.name === "SC_RESULT" ? (
+        <ResultView status={screen.info.status} title={screen.info.title} />
+      ) : null}
+    </>
+  );
+}
+
+function ResultView(props) {
+  return (
+    <>
+      <Result
+        status={props.status === "1" ? "success" : "error"}
+        title={props.title}
+      ></Result>
+    </>
   );
 }
 

@@ -1,4 +1,4 @@
-import { Button, Input, message } from "antd";
+import { Button, Input, message, Row, Col } from "antd";
 import { WS_BASE_URL } from "constants/index";
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
@@ -71,15 +71,33 @@ function Name(props) {
   });
 
   return (
-    <div>
-      <Input
-        placeholder="Enter a nick name"
-        maxLength={15}
-        onChange={onChange}
-      />
-      <Button type="primary" onClick={hanldeOk}>
-        Ok
-      </Button>
+    <div
+      style={{
+        height: "45vh",
+        display: "flex",
+        alignItems: "flex-end",
+      }}
+    >
+      <Row style={{ width: "100%" }}>
+        <Col xs={24} xl={8}></Col>
+        <Col xs={24} xl={8}>
+          <div style={{ padding: 25 }}>
+            <Input
+              placeholder="Enter a nick name"
+              maxLength={15}
+              onChange={onChange}
+            />
+            <Button
+              style={{ width: "100%", marginTop: 10 }}
+              type="primary"
+              onClick={hanldeOk}
+            >
+              Ok
+            </Button>
+          </div>
+        </Col>
+        <Col xs={24} xl={8}></Col>
+      </Row>
     </div>
   );
 }

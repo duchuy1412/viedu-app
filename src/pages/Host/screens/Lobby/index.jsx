@@ -116,11 +116,14 @@ function Lobby(props) {
   }, []);
 
   return (
-    <div>
+    <div style={{ minHeight: "100vh" }}>
       <FullScreen handle={handle}>
         <div
           style={{
+            backgroundColor: "white",
             display: "flex",
+            flex: 1,
+            height: "100%",
             flexDirection: "column",
           }}
         >
@@ -168,6 +171,7 @@ function Lobby(props) {
             style={{
               display: "flex",
               flexDirection: "row",
+              padding: 10,
               justifyContent: "center",
               alignItems: "center",
             }}

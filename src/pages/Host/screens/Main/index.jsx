@@ -42,9 +42,14 @@ function Main(props) {
   });
 
   return (
-    <div>
-      <div>
-        <Form form={form} onFinish={handleSubmit}>
+    <>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <Form style={{ width: 350 }} form={form} onFinish={handleSubmit}>
           <Form.Item name="gameType">
             <Input hidden />
           </Form.Item>
@@ -59,7 +64,7 @@ function Main(props) {
           </Form.Item>
         </Form>
       </div>
-    </div>
+    </>
   );
 }
 
