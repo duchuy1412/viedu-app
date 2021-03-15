@@ -59,14 +59,18 @@ const AppHeader = (props) => {
       </Menu.Item>,
     ];
   } else {
-    menuItems = [
-      <Menu.Item key="/login">
-        <Link to="/login">Login</Link>
-      </Menu.Item>,
-      <Menu.Item key="/signup">
-        <Link to="/signup">Signup</Link>
-      </Menu.Item>,
-    ];
+    if (props.location.pathname.startsWith("/audience")) {
+      menuItems = [];
+    } else {
+      menuItems = [
+        <Menu.Item key="/login">
+          <Link to="/login">Login</Link>
+        </Menu.Item>,
+        <Menu.Item key="/signup">
+          <Link to="/signup">Signup</Link>
+        </Menu.Item>,
+      ];
+    }
   }
 
   return (

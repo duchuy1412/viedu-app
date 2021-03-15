@@ -1,4 +1,4 @@
-import { Button, message } from "antd";
+import { Button, message, Tooltip } from "antd";
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import SockJS from "sockjs-client";
@@ -7,6 +7,15 @@ import { WS_BASE_URL } from "constants/index";
 import { useSelector, useDispatch } from "react-redux";
 import { currentGame } from "./../../hostSlice";
 import { updateGame } from "util/APIUtils";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { FullscreenExitOutlined, FullscreenOutlined } from "@ant-design/icons";
+import styled from "styled-components";
+
+const ToolBar = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  padding: 10px;
+`;
 
 Lobby.propTypes = {};
 
@@ -17,13 +26,19 @@ function useQuery() {
 function Lobby(props) {
   //get query params
   let query = useQuery();
+  const quizId = query.get("quizId");
+
   const dispatch = useDispatch();
   const games = useSelector((state) => state.games);
   const game = games.current;
+
   const location = useLocation();
   const history = useHistory();
 
-  const quizId = query.get("quizId");
+  const handle = useFullScreenHandle();
+
+  const [playersJoined, setPlayersJoined] = useState([]);
+
   var stompClient = null;
 
   function connect() {
@@ -61,8 +76,6 @@ function Lobby(props) {
     );
   }
 
-  const [playersJoined, setPlayersJoined] = useState([]);
-
   function onMessageReceived(payload) {
     var receivedMessage = JSON.parse(payload.body);
 
@@ -96,19 +109,73 @@ function Lobby(props) {
       if (stompClient !== null) {
         stompClient.disconnect();
       }
-      updateGame({ ...game, players: playersJoined })
-        .then((res) => {})
-        .catch((error) => console.log(error.message));
+      // updateGame({ ...game, players: playersJoined })
+      //   .then((res) => {})
+      //   .catch((error) => console.log(error.message));
     };
   }, []);
 
   return (
     <div>
-      <div>
-        Join at <h5>viedu.live/audience</h5> with PIN: <h1>{game.pin}</h1>
-      </div>
-      <Button onClick={handleStart}>Start</Button>
-      <BoardName list={playersJoined} />
+      <FullScreen handle={handle}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <ToolBar>
+            {handle.active ? (
+              <Tooltip placement="bottomRight" title="Exit">
+                <Button
+                  onClick={handle.exit}
+                  icon={<FullscreenExitOutlined />}
+                />
+              </Tooltip>
+            ) : (
+              <Tooltip placement="bottomRight" title="Fullscreen">
+                <Button onClick={handle.enter} icon={<FullscreenOutlined />} />
+              </Tooltip>
+            )}
+          </ToolBar>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              padding: 20,
+            }}
+          >
+            <Button type="primary" onClick={handleStart}>
+              Start
+            </Button>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-around",
+              alignItems: "center",
+            }}
+          >
+            <span>
+              Join at <b>viedu.live/audience</b> with PIN: <h1>{game.pin}</h1>
+            </span>
+            <div>
+              Number of players: <h1>{playersJoined.length}</h1>
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <BoardName list={playersJoined} />
+          </div>
+        </div>
+      </FullScreen>
     </div>
   );
 }

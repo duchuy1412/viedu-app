@@ -1,106 +1,138 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { Button, Input, message, Space } from "antd";
+import { Button, Input, message, Result, Space } from "antd";
 import { useHistory, useLocation } from "react-router-dom";
 import { WS_BASE_URL } from "constants/index";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
+import moment from "moment";
 
 Instruction.propTypes = {};
 
+var stompClient = null;
 function Instruction(props) {
   const history = useHistory();
   const location = useLocation();
   const { state } = location;
 
   const [question, setQuestion] = useState(null);
+  const [selected, setSelected] = useState(false);
+  const [screen, setScreen] = useState("SC_ANSWER"); // Screen state: SC_ANSWER, SC_WAIT, SC_RESULT
 
-  var stompClient = null;
+  let startTime = useRef(null);
 
-  function connect() {
-    let serverUrl = WS_BASE_URL;
-    let ws = new SockJS(serverUrl);
-    stompClient = Stomp.over(ws);
-
-    stompClient.connect({}, onConnected, onError);
-  }
-
-  function onConnected() {
-    stompClient.subscribe(`/quiz/${state.pin}`, onMessageReceived);
-  }
-
-  function onError(error) {
-    message.error(
-      "Could not connect to server. Please refresh this page to try again!"
-    );
-  }
-
-  function onMessageReceived(payload) {
+  const onMessageReceived = useCallback((payload) => {
     let receivedMessage = JSON.parse(payload.body);
 
     if (receivedMessage.type === "SEND_QUESTION") {
       let messages = receivedMessage.content.split("|");
       // console.log(messages);
-
+      setSelected(false);
       setQuestion({
-        title: messages[0],
+        id: messages[0],
+        title: messages[2],
         questionType: messages[1],
       });
+
+      startTime.current = moment();
     }
 
     if (receivedMessage.type === "SKIP") {
-      setQuestion(null);
+      setSelected(true);
+    }
+
+    if (receivedMessage.type === "INTERACT") {
+    }
+  }, []);
+
+  const onConnected = useCallback(() => {
+    stompClient.subscribe(`/quiz/${state.pin}`, onMessageReceived);
+    stompClient.subscribe(`/user/quiz/${state.pin}`, onMessageReceived);
+  }, [state.pin, onMessageReceived]);
+
+  const onError = useCallback(() => {
+    message.error(
+      "Could not connect to server. Please refresh this page to try again!"
+    );
+  }, []);
+
+  const connect = useCallback(() => {
+    let serverUrl = WS_BASE_URL;
+    let ws = new SockJS(serverUrl);
+    stompClient = Stomp.over(ws);
+
+    stompClient.connect({}, onConnected, onError);
+  }, [onConnected, onError]);
+
+  function disconnect() {
+    if (stompClient !== null) stompClient.disconnect();
+  }
+
+  function handleInteract(e) {
+    // console.log(e.target.value);
+
+    const answerNum = e.currentTarget.value;
+
+    if (answerNum !== null) {
+      stompClient.send(
+        `/app/game.sendResponse/${state.pin}`,
+        {
+          questionId: question.id,
+          responseTime: moment().diff(startTime.current, "seconds", true),
+        },
+        JSON.stringify({
+          sender: state.nickname,
+          type: "INTERACT",
+          content: answerNum,
+        })
+      );
+
+      setSelected(true);
     }
   }
 
   useEffect(() => {
     connect();
+
+    return () => {
+      disconnect();
+    };
   }, []);
 
-  const handleInteract = (e) => {
-    // console.log(e.target.value);
-    const answerNum = e.target.value;
-    stompClient.send(
-      `/app/game.sendResponse/${state.pin}`,
-      {},
-      JSON.stringify({
-        sender: state.nickname,
-        type: "INTERACT",
-        content: answerNum,
-      })
-    );
-  };
+  // console.log(stompClient);
 
-  return (
+  const fourOptions = ["A", "B", "C", "D"];
+  const fourButtonOptions = fourOptions.map((option, index) => (
+    <Button
+      key={index}
+      value={index}
+      onClick={(e) => handleInteract(e, "value")}
+    >
+      {option}
+    </Button>
+  ));
+
+  const twoOptions = ["True", "False"];
+  const twoButtonOptions = twoOptions.map((option, index) => (
+    <Button
+      key={index}
+      value={index}
+      onClick={(e) => handleInteract(e, "value")}
+    >
+      {option}
+    </Button>
+  ));
+
+  return question !== null ? (
     <div>
-      {question !== null ? (
+      {!selected ? (
         question.questionType === "QUESTION_CHOICE_ANSWER" ? (
           <span>
-            <Space>
-              <Button value={0} onClick={handleInteract}>
-                A
-              </Button>
-              <Button value={1} onClick={handleInteract}>
-                B
-              </Button>
-              <Button value={2} onClick={handleInteract}>
-                C
-              </Button>
-              <Button value={3} onClick={handleInteract}>
-                D
-              </Button>
-            </Space>
+            <Space>{fourButtonOptions}</Space>
           </span>
         ) : question.questionType === "QUESTION_TRUE_FALSE" ? (
           <span>
-            <Space>
-              <Button value={0} onClick={handleInteract}>
-                True
-              </Button>
-              <Button value={1} onClick={handleInteract}>
-                False
-              </Button>
-            </Space>
+            <Space>{twoButtonOptions}</Space>
           </span>
         ) : (
           <span>
@@ -108,9 +140,16 @@ function Instruction(props) {
           </span>
         )
       ) : (
-        <span>Looking up at the podium</span>
+        <Result status="success" title="Waiting for the result" extra={[]} />
       )}
     </div>
+  ) : (
+    <Result
+      status="info"
+      title="You can see your name at the podium"
+      subTitle="Waiting for host to start game"
+      extra={[]}
+    />
   );
 }
 

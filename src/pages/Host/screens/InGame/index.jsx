@@ -1,12 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
-import { getPresentation } from "util/APIUtils";
 import { Button, message, Statistic } from "antd";
+import { WS_BASE_URL } from "constants/index";
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { useHistory } from "react-router-dom";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { WS_BASE_URL } from "constants/index";
-import { useHistory } from "react-router-dom";
+import { getPresentation } from "util/APIUtils";
 
 InGame.propTypes = {};
 
@@ -19,10 +18,15 @@ function InGame(props) {
   const games = useSelector((state) => state.games);
   const game = games.current;
   const [presentation, setPresentation] = useState({});
-  const [question, setQuestion] = useState(0);
-  const [isLastQuestion, setIsLastQuestion] = useState(false);
+  const [question, setQuestion] = useState({ data: {}, index: -1 });
+  // const [isLastQuestion, setIsLastQuestion] = useState(false);
 
   const { presentationId } = game;
+
+  const rendered = useRef(1);
+  useEffect(() => {
+    rendered.current = rendered.current + 1;
+  });
 
   function connect() {
     let serverUrl = WS_BASE_URL;
@@ -30,6 +34,10 @@ function InGame(props) {
     stompClient = Stomp.over(ws);
 
     stompClient.connect({}, onConnected, onError);
+  }
+
+  function disconnect() {
+    if (stompClient !== null) stompClient.disconnect();
   }
 
   function onConnected() {
@@ -56,26 +64,47 @@ function InGame(props) {
   }
 
   useEffect(() => {
+    let mounted = true;
     //re-connect
     connect();
 
     // get list of questions
     const fetch = async () => {
       await getPresentation(presentationId)
-        .then((res) => setPresentation(res))
+        .then((res) => {
+          if (mounted) {
+            setPresentation(res);
+          }
+        })
         .catch((error) => console.log(error));
     };
 
     fetch();
+
+    return () => {
+      mounted = false;
+      disconnect();
+    };
   }, []);
 
   useEffect(() => {
-    presentation.questionList
+    if (presentation.questionList)
+      setQuestion({
+        data: presentation.questionList[0],
+        index: 0,
+      });
+    else {
+      console.log("Presentation has been loaded yet");
+    }
+  }, [presentation]);
+
+  useEffect(() => {
+    question.index >= 0
       ? setTimeout(() => {
           // allow players to answer
           sendQuestion();
           // console.log(presentation);
-          let count = presentation.questionList[question].seconds;
+          let count = question.data.seconds;
           const timeAnswer = setInterval(() => {
             console.log(count);
             if (count === 0) {
@@ -88,24 +117,25 @@ function InGame(props) {
           }, 1000);
         }, 5000)
       : console.log("No question is loaded");
-  });
+  }, [question]);
 
   const handleNext = () => {
-    if (question < presentation.questionList.length - 1) {
-      if (question + 1 === presentation.questionList.length - 1) {
-        setQuestion(question + 1);
-        setIsLastQuestion(true);
-      }
+    // console.log(questionNumber);
+    // console.log(presentation);
+    if (question.index < presentation.questionList.length - 1) {
+      setQuestion((question) => ({
+        data: presentation.questionList[question.index + 1],
+        index: question.index + 1,
+      }));
     } else {
       // handle End
       history.replace("/");
     }
-    // display question to screen of other players
   };
 
   function sendSkip() {
     stompClient.send(
-      `/app/game.sendResponse/${game.pin}`,
+      `/app/game.skipLive/${game.pin}`,
       {},
       JSON.stringify({
         sender: game.hostedBy,
@@ -115,42 +145,52 @@ function InGame(props) {
   }
 
   async function sendQuestion() {
+    let sendContent = question.data.id.concat(
+      "|",
+      question.data.questionType,
+      "|",
+      question.data.title
+    );
     stompClient.send(
-      `/app/game.sendResponse/${game.pin}`,
+      `/app/game.sendQuestion/${game.pin}`,
       {},
       JSON.stringify({
         sender: game.hostedBy,
         type: "SEND_QUESTION",
-        content:
-          presentation.questionList[question].title +
-          "|" +
-          presentation.questionList[question].questionType,
+        content: sendContent,
       })
     );
   }
 
   return (
     <div>
-      <div>
-        <Button onClick={() => handleNext()}>
-          {!isLastQuestion ? "Next" : "End"}
-        </Button>
-      </div>
-      <Countdown
-        title="Time"
-        value={Date.now() + 1000 * 6}
-        format="ss"
-        onFinish={console.log("Let's interact...")}
-      />
+      rendered : {rendered.current}
       {presentation.questionList ? (
-        <div>
-          <span>{presentation.questionList[question].title}</span>
-          <ul>
-            {presentation.questionList[question].answers.map((a, index) => (
-              <li>{a.text}</li>
-            ))}
-          </ul>
-        </div>
+        <>
+          <div>
+            <Button onClick={() => handleNext()}>
+              {question.index < presentation.questionList.length - 1
+                ? "Next"
+                : "End"}
+            </Button>
+          </div>
+          <Countdown
+            title="Time"
+            value={Date.now() + 1000 * 6}
+            format="ss"
+            onFinish={() => console.log("Let's interact...")}
+          />
+          <div>
+            <span>{question.data.title ? question.data.title : ""}</span>
+            <ul>
+              {question.data.answers
+                ? question.data.answers.map((a, index) => (
+                    <li key={index}>{a.text}</li>
+                  ))
+                : null}
+            </ul>
+          </div>
+        </>
       ) : null}
     </div>
   );
