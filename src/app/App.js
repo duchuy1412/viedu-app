@@ -21,6 +21,8 @@ import "./App.css";
 import PublicRoute from "../common/PublicRoute";
 import Home from "../pages/landing/Home";
 import Questions from "../pages/question/Questions";
+import Host from "./../pages/Host";
+import Audience from "pages/Audience/index";
 
 const { Content } = Layout;
 
@@ -41,7 +43,7 @@ const App = (props) => {
     getCurrentUser()
       .then((response) => {
         setCurrentUser(response);
-        console.log(response);
+        // console.log(response);
         setIsAuthenticated(true);
         setIsLoading(false);
       })
@@ -148,6 +150,8 @@ const App = (props) => {
               component={Questions}
               handleLogout={handleLogout}
             />
+            <Route path="/play" component={Host} />
+            <Route path="/audience" component={Audience} />
             <Route component={NotFound} />
           </Switch>
         </div>

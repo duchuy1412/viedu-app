@@ -2,11 +2,14 @@ app-title {
     float: left;
   }
   
-  .app-title a {
+  .app-title a {    
+    margin-left: 50px;
     text-decoration: none;
     line-height: 64px;
     font-size: 21px;
+    font-weight: bold;
     display: inline-block;
+    font-family: 'Courier New', monospace;
   }
   
   .app-title a:hover {
@@ -62,14 +65,6 @@ app-title {
     margin: -10px -12px;
   }
   
-  .nav-icon {
-    font-size: 20px;
-  }
-
-  .poll-icon {
-    margin-top: -4px;
-  }
-
 @media (max-width: 768px) {
   .app-title a {
     font-size: 20px;

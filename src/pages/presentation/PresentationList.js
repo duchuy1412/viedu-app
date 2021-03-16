@@ -53,9 +53,10 @@ function PresentationList(props) {
       key: "action",
       render: (text, record) => (
         <Space size="middle">
-          <Button type="primary" href={`/presentations/${record.id}/edit`}>
-            Edit
+          <Button type="primary" href={`/play?quizId=${record.id}`}>
+            Play
           </Button>
+          <Button href={`/presentations/${record.id}/edit`}>Edit</Button>
           <Button danger onClick={() => confirm(record.id)}>
             Delete
           </Button>
@@ -95,22 +96,31 @@ function PresentationList(props) {
   }
 
   useEffect(() => {
+    let mounted = true;
+
     setLoading(true);
-    countPresentations().then((response) =>
-      setPagination((p) => ({ ...p, total: response }))
-    );
+    countPresentations().then((response) => {
+      if (mounted) setPagination((p) => ({ ...p, total: response }));
+    });
     setLoading(false);
+
+    return () => (mounted = false);
   }, []);
 
   useEffect(() => {
+    let mounted = true;
     setLoading(true);
 
     getAllPresentations(pagination.current, pagination.pageSize).then(
       (response) => {
-        setData(response);
-        setLoading(false);
+        if (mounted) {
+          setData(response);
+          setLoading(false);
+        }
       }
     );
+
+    return () => (mounted = false);
   }, [pagination]);
 
   const handleTableChange = (pagination, filters, sorter) => {

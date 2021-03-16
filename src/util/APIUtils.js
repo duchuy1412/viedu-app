@@ -72,8 +72,20 @@ export function updatePresentation(presentationData) {
 export function addToPresentation(question, presentationId) {
   return request({
     url: API_BASE_URL + "/presentation/" + presentationId + "/addQuestion",
-    method: "PUT",
+    method: "POST",
     body: JSON.stringify(question),
+  });
+}
+
+export function deleteFromPresentation(questionId, presentationId) {
+  return request({
+    url:
+      API_BASE_URL +
+      "/presentation/" +
+      presentationId +
+      "/deleteQuestion/" +
+      questionId,
+    method: "DELETE",
   });
 }
 
@@ -136,6 +148,29 @@ export function deleteQuestion(questionId) {
   return request({
     url: API_BASE_URL + "/question/" + questionId,
     method: "DELETE",
+  });
+}
+
+export function createGame(gameData) {
+  return request({
+    url: API_BASE_URL + "/game",
+    method: "POST",
+    body: JSON.stringify(gameData),
+  });
+}
+
+export function updateGame(gameData) {
+  return request({
+    url: API_BASE_URL + "/game",
+    method: "PUT",
+    body: JSON.stringify(gameData),
+  });
+}
+
+export function checkExistByPIN(pin) {
+  return request({
+    url: API_BASE_URL + "/games/checkExistByPIN?pin=" + pin,
+    method: "GET",
   });
 }
 
