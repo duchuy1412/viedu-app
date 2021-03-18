@@ -1,11 +1,62 @@
-import { Button, message, Statistic } from "antd";
-import { WS_BASE_URL } from "constants/index";
+import {
+  CheckOutlined,
+  ClockCircleOutlined,
+  CloseOutlined,
+  FullscreenExitOutlined,
+  FullscreenOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  message,
+  Progress,
+  Row,
+  Statistic,
+  Tooltip,
+  Typography,
+} from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import styled from "styled-components";
+import Animate from "react-smooth";
+
 import { getPresentation } from "util/APIUtils";
+import { WS_BASE_URL } from "constants/index";
+import ProgressBar from "./../../ProgressBar";
+import Delayed from "pages/Host/Delayed";
+import CountdownTimer from "./../../CountdownTimer";
+
+const ToolBar = styled.div`
+  display: flex;
+  flex-direction: row-reverse;
+  padding: 10px;
+`;
+
+const CenterDiv = styled.div`
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const OptionBox = styled.div`
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: white;
+  font-size: 15;
+  font-weight: bold;
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 8px;
+  margin: 5px;
+`;
 
 InGame.propTypes = {};
 
@@ -13,7 +64,12 @@ var stompClient = null;
 
 const { Countdown } = Statistic;
 
-const answerOptions = ["A", "B", "C", "D"];
+const answerOptions = [
+  { icon: "A", color: "red" },
+  { icon: "B", color: "blue" },
+  { icon: "C", color: "orange" },
+  { icon: "D", color: "green" },
+];
 
 function InGame(props) {
   const history = useHistory();
@@ -21,7 +77,8 @@ function InGame(props) {
   const game = games.current;
   const [presentation, setPresentation] = useState({});
   const [question, setQuestion] = useState({ data: {}, index: -1 });
-  // const [isLastQuestion, setIsLastQuestion] = useState(false);
+  const [displayResult, setDisplayResult] = useState(false);
+  const handle = useFullScreenHandle();
 
   const { presentationId } = game;
 
@@ -29,6 +86,22 @@ function InGame(props) {
   // useEffect(() => {
   //   rendered.current = rendered.current + 1;
   // });
+
+  // const steps = [
+  //   {
+  //     style: {
+  //       opacity: 0,
+  //     },
+  //     duration: 5000,
+  //   },
+  //   {
+  //     style: {
+  //       opacity: 1,
+  //     },
+  //     duration: 200,
+  //     easing: "ease",
+  //   },
+  // ];
 
   function connect() {
     let serverUrl = WS_BASE_URL;
@@ -119,11 +192,13 @@ function InGame(props) {
           }, 1000);
         }, 5000)
       : console.log("No question is loaded");
+
+    return () => {
+      setDisplayResult(false);
+    };
   }, [question]);
 
   const handleNext = () => {
-    // console.log(questionNumber);
-    // console.log(presentation);
     if (question.index < presentation.questionList.length - 1) {
       setQuestion((question) => ({
         data: presentation.questionList[question.index + 1],
@@ -142,8 +217,10 @@ function InGame(props) {
       JSON.stringify({
         sender: game.hostedBy,
         type: "SKIP",
+        content: question.data.id,
       })
     );
+    setDisplayResult(true);
   }
 
   async function sendQuestion() {
@@ -166,36 +243,113 @@ function InGame(props) {
 
   return (
     <div>
-      {/* rendered : {rendered.current} */}
-      {presentation.questionList ? (
-        <>
-          <div>
-            <Button onClick={() => handleNext()}>
-              {question.index < presentation.questionList.length - 1
-                ? "Next"
-                : "End"}
-            </Button>
-          </div>
-          <Countdown
-            title="Time"
-            value={Date.now() + 1000 * 6}
-            format="ss"
-            onFinish={() => console.log("Let's interact...")}
-          />
-          <div>
-            <span>{question.data.title ? question.data.title : ""}</span>
-            <ul>
-              {question.data.answers
-                ? question.data.answers.map((a, index) => (
-                    <li key={index}>
-                      {answerOptions[index]}. {a.text}
-                    </li>
-                  ))
-                : null}
-            </ul>
-          </div>
-        </>
-      ) : null}
+      <FullScreen handle={handle}>
+        <div
+          style={{
+            backgroundColor: "white",
+            display: "flex",
+            flex: 1,
+            height: "100%",
+            flexDirection: "column",
+          }}
+        >
+          <ToolBar>
+            {handle.active ? (
+              <Tooltip placement="bottomRight" title="Exit">
+                <Button
+                  onClick={handle.exit}
+                  icon={<FullscreenExitOutlined />}
+                />
+              </Tooltip>
+            ) : (
+              <Tooltip placement="bottomRight" title="Fullscreen">
+                <Button onClick={handle.enter} icon={<FullscreenOutlined />} />
+              </Tooltip>
+            )}
+          </ToolBar>
+          {presentation.questionList ? (
+            <>
+              <Row style={{ backgroundColor: "Background" }}>
+                <Col xl={4}>
+                  <CenterDiv>
+                    <Typography.Text strong style={{ fontSize: 25 }}>
+                      Question {question.index + 1} of{" "}
+                      {presentation.questionList.length}
+                    </Typography.Text>
+                  </CenterDiv>
+                </Col>
+                <Col xl={16}>
+                  <CenterDiv>
+                    <Typography.Text strong style={{ fontSize: 25 }} ellipsis>
+                      {question.data.title ? question.data.title : ""}
+                    </Typography.Text>
+                  </CenterDiv>
+                </Col>
+                <Col xl={4}>
+                  <CenterDiv
+                    style={{ justifyContent: "flex-end", padding: 10 }}
+                  >
+                    <Button type="primary" onClick={() => handleNext()}>
+                      {question.index < presentation.questionList.length - 1
+                        ? "Next"
+                        : "End"}
+                    </Button>
+                  </CenterDiv>
+                </Col>
+              </Row>
+              <CenterDiv>
+                <ProgressBar time={5} id={question.data.id} />
+              </CenterDiv>
+
+              <Delayed waitBeforeShow={5000} key={question.data.id}>
+                <Row>
+                  <Col span={5}>
+                    <CenterDiv>
+                      <CountdownTimer duration={question.data.seconds} />
+                    </CenterDiv>
+                  </Col>
+                  <Col span={14}></Col>
+                  <Col span={5}></Col>
+                </Row>
+                <Row>
+                  {question.data.answers
+                    ? question.data.answers.map((a, index) => (
+                        <Col key={index} span={12}>
+                          <OptionBox
+                            style={{
+                              justifyContent: displayResult
+                                ? "space-between"
+                                : "flex-start",
+                              backgroundColor: answerOptions[index].color,
+                              opacity: displayResult
+                                ? !a.correct
+                                  ? 0.3
+                                  : 1
+                                : 1,
+                            }}
+                          >
+                            <span>
+                              {answerOptions[index].icon}. {a.text}
+                            </span>
+                            {displayResult ? (
+                              <span>
+                                {a.correct ? (
+                                  <CheckOutlined />
+                                ) : (
+                                  <CloseOutlined />
+                                )}
+                              </span>
+                            ) : null}
+                          </OptionBox>
+                        </Col>
+                      ))
+                    : null}
+                </Row>
+              </Delayed>
+            </>
+          ) : null}
+        </div>
+      </FullScreen>
     </div>
   );
 }

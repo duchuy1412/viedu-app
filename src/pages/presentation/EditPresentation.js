@@ -314,9 +314,7 @@ const EditPresentation = () => {
             >
               <Option value="QUESTION_CHOICE_ANSWER">Quiz</Option>
               <Option value="QUESTION_TRUE_FALSE">True or False</Option>
-              <Option value="QUESTION_INPUT_ANSWER" disabled>
-                Input answer
-              </Option>
+              <Option value="QUESTION_INPUT_ANSWER">Input answer</Option>
             </Select>
           </Form.Item>
         </Form>

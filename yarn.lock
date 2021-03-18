@@ -4733,6 +4733,13 @@ dom-converter@^0.2:
   dependencies:
     utila "~0.4"
 
+dom-helpers@^3.4.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/dom-helpers/-/dom-helpers-3.4.0.tgz#e9b369700f959f62ecde5a6babde4bccd9169af8"
+  integrity sha512-LnuPJ+dwqKDIyotW1VzmOZ5TONUN7CwkCR5hrgawTUbkBGYdeoNLZo6nNfGkCrjtE1nXXaj7iMMpDa8/d9WoIA==
+  dependencies:
+    "@babel/runtime" "^7.1.2"
+
 dom-serializer@0:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/dom-serializer/-/dom-serializer-0.2.2.tgz#1afb81f533717175d478655debc5e332d9f9bb51"
@@ -8159,6 +8166,11 @@ lodash.without@~4.4.0:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
 
+lodash@~4.17.4:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
+
 loglevel@^1.6.8:
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/loglevel/-/loglevel-1.7.0.tgz#728166855a740d59d38db01cf46f042caa041bb0"
@@ -10474,7 +10486,7 @@ promzard@^0.3.0:
   dependencies:
     read "1"
 
-prop-types@^15.5.10, prop-types@^15.6.2, prop-types@^15.7.2:
+prop-types@^15.5.10, prop-types@^15.6.0, prop-types@^15.6.2, prop-types@^15.7.2:
   version "15.7.2"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.7.2.tgz#52c41e75b8c87e72b9d9360e0206b99dcbffa6c5"
   integrity sha512-8QQikdH7//R2vurIJSutZ1smHYTcLpRWEOlHnzcWHmBYrOGUysKwSsrC89BCiFj3CbrfJ/nXFdJepOVrY1GCHQ==
@@ -10627,7 +10639,7 @@ qw@~1.0.1:
   resolved "https://registry.yarnpkg.com/qw/-/qw-1.0.1.tgz#efbfdc740f9ad054304426acb183412cc8b996d4"
   integrity sha1-77/cdA+a0FQwRCassYNBLMi5ltQ=
 
-raf@^3.4.1:
+raf@^3.4.0, raf@^3.4.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/raf/-/raf-3.4.1.tgz#0742e99a4a6552f445d73e3ee0328af0ff1ede39"
   integrity sha512-Sq4CW4QhwOHE8ucn6J34MqtZCeWFP2aQSmrlroYgqAV1PjStIhJXxYuTgUIfkEk7zTLjmIjLmU5q+fbD1NnOJA==
@@ -11057,6 +11069,13 @@ react-app-rewired@^2.1.8:
   dependencies:
     semver "^5.6.0"
 
+react-countdown-circle-timer@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/react-countdown-circle-timer/-/react-countdown-circle-timer-2.5.0.tgz#a985a48e017d4ef6d4889188386b3404ecf2ac5f"
+  integrity sha512-fCKGnoaqEwEjQ6IUvDRMHY3DZ8NgxZkEViegHu4vIu77w68HlTtBFsf6KWbJj5nGrbD1413mnmErchuE4BHRxA==
+  dependencies:
+    use-elapsed-time "2.1.6"
+
 react-dev-utils@^11.0.1:
   version "11.0.1"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.1.tgz#30106c2055acfd6b047d2dc478a85c356e66fe45"
@@ -11233,6 +11252,26 @@ react-scripts@4.0.1:
     workbox-webpack-plugin "5.1.4"
   optionalDependencies:
     fsevents "^2.1.3"
+
+react-smooth@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/react-smooth/-/react-smooth-1.0.6.tgz#18b964f123f7bca099e078324338cd8739346d0a"
+  integrity sha512-B2vL4trGpNSMSOzFiAul9kFAsxTukL9Wyy9EXtkQy3GJr6sZqW9e1nShdVOJ3hRYamPZ94O17r3Q0bjSw3UYtg==
+  dependencies:
+    lodash "~4.17.4"
+    prop-types "^15.6.0"
+    raf "^3.4.0"
+    react-transition-group "^2.5.0"
+
+react-transition-group@^2.5.0:
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-2.9.0.tgz#df9cdb025796211151a436c69a8f3b97b5b07c8d"
+  integrity sha512-+HzNTCHpeQyl4MJ/bdE0u6XRMe9+XG/+aL4mCxVN4DnPBQ0/5bfHWPDuOZUzYdMj94daZaZdCCc1Dzt9R/xSSg==
+  dependencies:
+    dom-helpers "^3.4.0"
+    loose-envify "^1.4.0"
+    prop-types "^15.6.2"
+    react-lifecycles-compat "^3.0.4"
 
 react@^17.0.1:
   version "17.0.1"
@@ -13346,6 +13385,11 @@ url@^0.11.0:
   dependencies:
     punycode "1.3.2"
     querystring "0.2.0"
+
+use-elapsed-time@2.1.6:
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/use-elapsed-time/-/use-elapsed-time-2.1.6.tgz#8ad0c0054a1ba7bf881540855b5eb2d60ff501be"
+  integrity sha512-6h6bY63oto1REUqcID3Goedgl5tVqWXsLzUSJ6EB9VprqZqnO5VDo1kkQqY/6V5Jc4Wu4XUgW3B8aDUHG2KRcA==
 
 use@^3.1.0:
   version "3.1.1"

@@ -16,7 +16,6 @@ function Instruction(props) {
   const { state } = location;
 
   const [question, setQuestion] = useState(null);
-  const [selected, setSelected] = useState(false);
   const [screen, setScreen] = useState({ name: "SC_ANSWER", info: {} }); // Screen state: SC_ANSWER, SC_WAIT, SC_RESULT
 
   let startTime = useRef(null);
@@ -28,8 +27,6 @@ function Instruction(props) {
       setScreen({ name: "SC_ANSWER", info: {} });
 
       let messages = receivedMessage.content.split("|");
-      // console.log(messages);
-      setSelected(false);
       setQuestion({
         id: messages[0],
         title: messages[2],
@@ -39,20 +36,31 @@ function Instruction(props) {
       startTime.current = moment();
     }
 
-    if (receivedMessage.type === "SKIP") {
-      // setSelected(true);
-      // if (!selected) {
-      //   setScreen({
-      //     name: "SC_RESULT",
-      //     info: { status: "0", title: "HALF TIME" },
-      //   });
-      // }
-    }
-
     if (receivedMessage.type === "INTERACT") {
       let status = receivedMessage.content.substring(0, 1); // status: 1 => correct, 0 => incorrect
       let point = receivedMessage.content.substring(1);
-      setScreen({ name: "SC_RESULT", info: { status: status, title: point } });
+      setScreen({
+        name: "SC_RESULT",
+        info: { status: status, title: point },
+        hidden: true,
+      });
+    }
+
+    if (receivedMessage.type === "SKIP") {
+      setScreen((screen) =>
+        screen.name === "SC_RESULT"
+          ? { ...screen, hidden: false }
+          : {
+              name: "SC_HALFTIME",
+              info: { status: 0, title: "HALF TIME" },
+              hidden: false,
+            }
+      );
+      // setScreen({
+      //   name: "SC_HALFTIME",
+      //   info: { status: 0, title: "HALF TIME" },
+      //   hidden: false,
+      // });
     }
   }, []);
 
@@ -97,8 +105,6 @@ function Instruction(props) {
           content: answerNum,
         })
       );
-
-      setSelected(true);
     }
   }
 
@@ -139,26 +145,19 @@ function Instruction(props) {
       {screen.name === "SC_ANSWER" ? (
         question !== null ? (
           <div>
-            {!selected ? (
-              question.questionType === "QUESTION_CHOICE_ANSWER" ? (
-                <span>
-                  <Space>{fourButtonOptions}</Space>
-                </span>
-              ) : question.questionType === "QUESTION_TRUE_FALSE" ? (
-                <span>
-                  <Space>{twoButtonOptions}</Space>
-                </span>
-              ) : (
-                <span>
-                  <Input />
-                </span>
-              )
+            <div>{question.title}</div>
+            {question.questionType === "QUESTION_CHOICE_ANSWER" ? (
+              <span>
+                <Space>{fourButtonOptions}</Space>
+              </span>
+            ) : question.questionType === "QUESTION_TRUE_FALSE" ? (
+              <span>
+                <Space>{twoButtonOptions}</Space>
+              </span>
             ) : (
-              <Result
-                status="success"
-                title="Waiting for the result"
-                extra={[]}
-              />
+              <span>
+                <Input />
+              </span>
             )}
           </div>
         ) : (
@@ -170,8 +169,14 @@ function Instruction(props) {
           />
         )
       ) : null}
-      {screen.name === "SC_RESULT" ? (
+      {!screen.hidden && screen.name === "SC_RESULT" ? (
         <ResultView status={screen.info.status} title={screen.info.title} />
+      ) : null}
+      {screen.name === "SC_HALFTIME" ? (
+        <ResultView status={screen.info.status} title={screen.info.title} />
+      ) : null}
+      {screen.hidden && screen.name === "SC_RESULT" ? (
+        <Result status="success" title="Waiting for the result" extra={[]} />
       ) : null}
     </>
   );
