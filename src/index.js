@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./app/App";
@@ -6,12 +6,15 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./store/store";
+import LoadingIndicator from "common/LoadingIndicator";
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router>
-      <App />
-    </Router>
+    <Suspense fallback={<LoadingIndicator />}>
+      <Router>
+        <App />
+      </Router>
+    </Suspense>
   </Provider>,
   document.getElementById("root")
 );
