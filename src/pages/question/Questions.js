@@ -53,10 +53,16 @@ const Questions = (props) => {
   };
 
   const handleSubmit = (values) => {
-    const titleQuestion = Object.assign({}, values);
+    let answersField;
+    if (values.questionType === "QUESTION_TRUE_FALSE") {
+      answersField = { answers: [{ text: "TRUE" }, { text: "FALSE" }] };
+      values = { ...values, ...answersField };
+    }
+
+    const newQuestion = Object.assign({}, values);
 
     setConfirmLoading(true);
-    createQuestion(titleQuestion)
+    createQuestion(newQuestion)
       .then((response) => {
         notification.success({
           message: "Viedu App",
@@ -141,7 +147,7 @@ const Questions = (props) => {
                           <Option value="QUESTION_TRUE_FALSE">
                             True or False
                           </Option>
-                          <Option value="QUESTION_INPUT_ANSWER" disabled>
+                          <Option value="QUESTION_INPUT_ANSWER">
                             Input answer
                           </Option>
                         </Select>

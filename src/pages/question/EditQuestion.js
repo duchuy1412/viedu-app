@@ -11,6 +11,7 @@ import {
   Row,
   Checkbox,
   notification,
+  Radio,
 } from "antd";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -19,6 +20,7 @@ import "./EditQuestion.css";
 import score from "./../../util/score";
 import { updateQuestion, getQuestion } from "./../../util/APIUtils";
 import LoadingIndicator from "./../../common/LoadingIndicator";
+import { PlusOutlined } from "@ant-design/icons";
 
 const { Content, Sider } = Layout;
 const { Option } = Select;
@@ -41,6 +43,7 @@ const tailLayout = {
 const EditQuestion = () => {
   const [loading, setLoading] = useState(false);
   const [submiting, setSubmiting] = useState(false);
+  const [question, setQuestion] = useState({});
   const { questionId } = useParams();
   const [form] = Form.useForm();
 
@@ -74,6 +77,7 @@ const EditQuestion = () => {
       .then((response) => {
         // console.log(response);
         onFill(response);
+        setQuestion(response);
         setLoading(false);
       })
       .catch((error) => {
@@ -116,42 +120,87 @@ const EditQuestion = () => {
               {(answers, { add, remove }) => {
                 return (
                   <div>
-                    {answers.map((answer, index) => (
-                      <div key={answer.key}>
-                        <Form.Item label={`Option ${index + 1}`}>
-                          <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                            <Col span={12}>
-                              <Form.Item
-                                name={[index, "text"]}
-                                rules={[{ require: true }]}
-                              >
-                                <Input placeholder={`Option ${index + 1}`} />
-                              </Form.Item>
-                            </Col>
-                            <Col span={6}>
-                              <Form.Item
-                                name={[index, "correct"]}
-                                valuePropName="checked"
-                                rules={[{ require: true, type: "boolean" }]}
-                              >
-                                <Checkbox checked={false} />
-                              </Form.Item>
-                            </Col>
-                            <Col span={6}>
-                              {index > 1 ? (
-                                <Button
-                                  type="danger"
-                                  onClick={() => remove(answer.name)}
+                    {question.questionType === "QUESTION_CHOICE_ANSWER" ? (
+                      answers.map((answer, index) => (
+                        <div key={answer.key}>
+                          <Form.Item label={`Option ${index + 1}`}>
+                            <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                              <Col span={12}>
+                                <Form.Item
+                                  name={[index, "text"]}
+                                  rules={[{ require: true }]}
                                 >
-                                  Remove
-                                </Button>
-                              ) : null}
-                            </Col>
-                          </Row>
-                        </Form.Item>
-                      </div>
-                    ))}
-                    {answers.length < 4 ? (
+                                  <Input placeholder={`Option ${index + 1}`} />
+                                </Form.Item>
+                              </Col>
+                              <Col span={6}>
+                                <Form.Item
+                                  name={[index, "correct"]}
+                                  valuePropName="checked"
+                                  rules={[{ require: true, type: "boolean" }]}
+                                >
+                                  <Checkbox checked={false} />
+                                </Form.Item>
+                              </Col>
+                              <Col span={6}>
+                                {index > 1 ? (
+                                  <Button
+                                    type="danger"
+                                    onClick={() => remove(answer.name)}
+                                  >
+                                    Remove
+                                  </Button>
+                                ) : null}
+                              </Col>
+                            </Row>
+                          </Form.Item>
+                        </div>
+                      ))
+                    ) : question.questionType === "QUESTION_TRUE_FALSE" ? (
+                      answers.map((answer, index) => (
+                        <div key={answer.key}>
+                          <Form.Item label={`Option ${index + 1}`}>
+                            <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                              <Col span={12}>
+                                <Form.Item
+                                  name={[index, "text"]}
+                                  rules={[{ require: true }]}
+                                >
+                                  <Input readOnly />
+                                </Form.Item>
+                              </Col>
+                              <Col span={6}>
+                                <Form.Item
+                                  name={[index, "correct"]}
+                                  valuePropName="checked"
+                                  rules={[{ require: true, type: "boolean" }]}
+                                >
+                                  <Radio.Group>
+                                    <Radio checked={false} />
+                                  </Radio.Group>
+                                </Form.Item>
+                              </Col>
+                              <Col span={6}>
+                                {index > 1 ? (
+                                  <Button
+                                    type="danger"
+                                    onClick={() => remove(answer.name)}
+                                  >
+                                    Remove
+                                  </Button>
+                                ) : null}
+                              </Col>
+                            </Row>
+                          </Form.Item>
+                        </div>
+                      ))
+                    ) : question.questionType === "QUESTION_INPUT_ANSWER" ? (
+                      <></>
+                    ) : (
+                      "The type of question has not been determined"
+                    )}
+                    {answers.length < 4 &&
+                    question.questionType !== "QUESTION_TRUE_FALSE" ? (
                       <Form.Item>
                         <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                           <Button
@@ -159,7 +208,7 @@ const EditQuestion = () => {
                             onClick={() => add()}
                             style={{ width: "60%" }}
                           >
-                            Add field
+                            <PlusOutlined /> Add more
                           </Button>
                         </Row>
                       </Form.Item>
