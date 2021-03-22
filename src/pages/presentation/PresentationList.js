@@ -6,7 +6,8 @@ import {
   getAllPresentations,
   deletePresentation,
 } from "../../util/APIUtils";
-import { formatDate } from "../../util/Helpers";
+
+var moment = require("moment");
 
 function PresentationList(props) {
   const [data, setData] = useState([]);
@@ -37,7 +38,7 @@ function PresentationList(props) {
         compare: (a, b) => a.createdDate - b.createdDate,
         multiple: 2,
       },
-      render: (date) => formatDate(date),
+      render: (date) => moment(date).fromNow(),
     },
     {
       title: "Modified",
@@ -46,7 +47,7 @@ function PresentationList(props) {
         compare: (a, b) => a.updatedDate - b.updatedDate,
         multiple: 1,
       },
-      render: (date) => formatDate(date),
+      render: (date) => moment(date).fromNow(),
     },
     {
       title: "Action",

@@ -6,7 +6,8 @@ import {
   getAllQuestions,
   deleteQuestion,
 } from "../../util/APIUtils";
-import { formatDate } from "../../util/Helpers";
+
+var moment = require("moment");
 
 function QuestionList(props) {
   const [data, setData] = useState([]);
@@ -23,26 +24,28 @@ function QuestionList(props) {
       dataIndex: "title",
       sorter: {
         compare: (a, b) => a.title.localeCompare(b.title),
-        multiple: 3,
+        multiple: 1,
       },
     },
     {
       title: "Created",
       dataIndex: "createdAt",
       sorter: {
-        compare: (a, b) => a.createdDate - b.createdDate,
+        compare: (a, b) =>
+          moment(b.createdAt).diff(moment(a.createdAt), "minutes", true),
         multiple: 2,
       },
-      render: (date) => formatDate(date),
+      render: (date) => moment(date).fromNow(),
     },
     {
       title: "Modified",
       dataIndex: "modifiedAt",
       sorter: {
-        compare: (a, b) => a.updatedDate - b.updatedDate,
-        multiple: 1,
+        compare: (a, b) =>
+          moment(b.modifiedAt).diff(moment(a.modifiedAt), "minutes", true),
+        multiple: 3,
       },
-      render: (date) => formatDate(date),
+      render: (date) => moment(date).fromNow(),
     },
     {
       title: "Action",
