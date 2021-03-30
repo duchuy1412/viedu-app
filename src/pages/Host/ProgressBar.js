@@ -9,12 +9,13 @@ ProgressBar.propTypes = {
 };
 
 function ProgressBar(props) {
+  const totalSecond = props.time;
   const [percent, setPercent] = useState(99);
 
   useEffect(() => {
     const inter = setInterval(() => {
       setPercent((percent) => (percent > 0 ? percent - 1 : 0));
-    }, 50);
+    }, totalSecond / 100);
 
     return () => {
       setPercent(99);

@@ -1,4 +1,12 @@
 import {
+  CheckOutlined,
+  ClockCircleOutlined,
+  CommentOutlined,
+  SketchOutlined,
+  PlusOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import {
   Button,
   Checkbox,
   Col,
@@ -14,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import score from "../../util/score";
 import { currentSlide } from "./slideSlice";
+import * as QuestionType from "util/QuestionType";
 
 SlideDetail.propTypes = {};
 
@@ -55,15 +64,15 @@ const TitleInput = styled(Input)`
   padding: ${(props) => props.size};
 `;
 
-const OptionInput = styled(Input)`
-  color: dodgerblue;
-  font-size: 2em;
-  border: 2px solid dodgerblue;
-  border-radius: 3px;
+// const OptionInput = styled(Input)`
+//   color: dodgerblue;
+//   font-size: 2em;
+//   border: 2px solid dodgerblue;
+//   border-radius: 3px;
 
-  margin: 5px;
-  padding: ${(props) => props.size};
-`;
+//   margin: 5px;
+//   padding: ${(props) => props.size};
+// `;
 
 function SlideDetail(props) {
   const { content } = props;
@@ -87,9 +96,7 @@ function SlideDetail(props) {
 
     form.setFieldsValue({
       title: content.title,
-      answers: content.answers
-        ? content.answers
-        : [{ text: "" }, { text: "" }, { text: "" }, { text: "" }],
+      answers: content.answers ? content.answers : [{ text: "" }, { text: "" }],
       score: content.score,
       seconds: content.seconds,
       questionType: content.questionType,
@@ -111,38 +118,142 @@ function SlideDetail(props) {
             <TitleInput placeholder="Title question" autoComplete="off" />
           </Form.Item>
 
-          <Form.List name="answers" initialValue={["", "", "", ""]}>
+          <Form.List name="answers" initialValue={["", ""]}>
             {(answers, { add, remove }) => {
               return (
                 <div>
-                  {answers.map((answer, index) => (
-                    <div key={answer.key}>
-                      <Form.Item label={`Option ${index + 1}`}>
-                        <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
-                          <Col span={12}>
-                            <Form.Item
-                              name={[index, "text"]}
-                              rules={[{ require: true }]}
-                            >
-                              <Input
-                                placeholder={`Option ${index + 1}`}
-                                autoComplete="off"
-                              />
-                            </Form.Item>
-                          </Col>
-                          <Col span={6}>
-                            <Form.Item
-                              name={[index, "correct"]}
-                              valuePropName="checked"
-                              rules={[{ require: true, type: "boolean" }]}
-                            >
-                              <Checkbox checked={false} />
-                            </Form.Item>
-                          </Col>
-                        </Row>
-                      </Form.Item>
-                    </div>
-                  ))}
+                  {slide.current.questionType ===
+                  QuestionType.QUESTION_CHOICE_ANSWER
+                    ? answers.map((answer, index) => (
+                        <div key={answer.key}>
+                          <Form.Item label={`Option ${index + 1}`}>
+                            <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                              <Col span={18}>
+                                <Form.Item
+                                  name={[index, "text"]}
+                                  rules={[{ require: true }]}
+                                >
+                                  <Input
+                                    placeholder={`Option ${index + 1}`}
+                                    autoComplete="off"
+                                  />
+                                </Form.Item>
+                              </Col>
+                              <Col span={2}>
+                                <Form.Item
+                                  name={[index, "correct"]}
+                                  valuePropName="checked"
+                                  rules={[{ require: true, type: "boolean" }]}
+                                >
+                                  <Checkbox checked={false} />
+                                </Form.Item>
+                              </Col>
+                              <Col span={4}>
+                                {index > 1 ? (
+                                  <Button
+                                    type="danger"
+                                    onClick={() => remove(answer.name)}
+                                  >
+                                    Remove
+                                  </Button>
+                                ) : null}
+                              </Col>
+                            </Row>
+                          </Form.Item>
+                        </div>
+                      ))
+                    : slide.current.questionType ===
+                      QuestionType.QUESTION_TRUE_FALSE
+                    ? answers.map((answer, index) => (
+                        <div key={answer.key}>
+                          <Form.Item label={`Option ${index + 1}`}>
+                            <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                              <Col span={6}>
+                                <Form.Item
+                                  name={[index, "text"]}
+                                  rules={[{ require: true }]}
+                                >
+                                  <Input readOnly />
+                                </Form.Item>
+                              </Col>
+                              <Col span={2}>
+                                <Form.Item
+                                  name={[index, "correct"]}
+                                  valuePropName="checked"
+                                  rules={[{ require: true, type: "boolean" }]}
+                                >
+                                  <input
+                                    style={{ fontSize: 15 }}
+                                    name="inpRadio"
+                                    type="radio"
+                                    checked={false}
+                                  />
+                                </Form.Item>
+                              </Col>
+                            </Row>
+                          </Form.Item>
+                        </div>
+                      ))
+                    : slide.current.questionType ===
+                      QuestionType.QUESTION_INPUT_ANSWER
+                    ? answers.map((answer, index) => (
+                        <div key={answer.key}>
+                          <Form.Item label={`Correct answer ${index + 1}`}>
+                            <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                              <Col span={18}>
+                                <Form.Item
+                                  name={[index, "text"]}
+                                  rules={[{ require: true }]}
+                                >
+                                  <Input
+                                    placeholder={`Correct answer ${index + 1}`}
+                                  />
+                                </Form.Item>
+                              </Col>
+                              <Col span={2}>
+                                <Form.Item
+                                  name={[index, "correct"]}
+                                  valuePropName="checked"
+                                  rules={[{ require: true, type: "boolean" }]}
+                                >
+                                  <Checkbox defaultChecked disabled />
+                                </Form.Item>
+                              </Col>
+                              <Col span={4}>
+                                {index > 1 ? (
+                                  <Button
+                                    type="danger"
+                                    onClick={() => remove(answer.name)}
+                                  >
+                                    Remove
+                                  </Button>
+                                ) : null}
+                              </Col>
+                            </Row>
+                          </Form.Item>
+                        </div>
+                      ))
+                    : "The type of question has not been determined"}
+                  {answers.length < 4 &&
+                  slide.current.questionType !==
+                    QuestionType.QUESTION_TRUE_FALSE ? (
+                    <Form.Item>
+                      <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
+                        <Button
+                          type="dashed"
+                          onClick={() =>
+                            slide.current.questionType ===
+                            QuestionType.QUESTION_INPUT_ANSWER
+                              ? add({ text: "", correct: true })
+                              : add()
+                          }
+                          style={{ width: "60%" }}
+                        >
+                          <PlusOutlined /> Add more
+                        </Button>
+                      </Row>
+                    </Form.Item>
+                  ) : null}
                 </div>
               );
             }}
@@ -150,18 +261,26 @@ function SlideDetail(props) {
         </StyledSlide>
 
         <StyledSetting>
-          <Title level={4}>Question Type</Title>
+          <Title level={4}>
+            <CommentOutlined /> Question Type
+          </Title>
           <Form.Item name="questionType" rules={[{ required: true }]}>
             <Select
-              defaultActiveFirstOption
+              disabled
               // onChange={handleChange}
             >
-              <Option value="QUESTION_CHOICE_ANSWER">Quiz</Option>
-              <Option value="QUESTION_TRUE_FALSE">True or False</Option>
-              <Option value="QUESTION_INPUT_ANSWER">Input answer</Option>
+              <Option value={QuestionType.QUESTION_CHOICE_ANSWER}>Quiz</Option>
+              <Option value={QuestionType.QUESTION_TRUE_FALSE}>
+                True or False
+              </Option>
+              <Option value={QuestionType.QUESTION_INPUT_ANSWER}>
+                Input answer
+              </Option>
             </Select>
           </Form.Item>
-          <Title level={4}>Score</Title>
+          <Title level={4}>
+            <SketchOutlined /> Points
+          </Title>
           <Form.Item
             name="score"
             initialValue={1000}
@@ -169,12 +288,17 @@ function SlideDetail(props) {
           >
             <Slider marks={score} min={0} max={2000} step={null} />
           </Form.Item>
-          <Title level={4}>Time to answer</Title>
+          <Title level={4}>
+            <ClockCircleOutlined /> Time to answer
+          </Title>
           <Form.Item
             name="seconds"
             rules={[{ type: "number", required: false }]}
           >
-            <Select placeholder="Choose a time" style={{ width: 150 }}>
+            <Select
+              placeholder="Choose a time"
+              menuItemSelectedIcon={<CheckOutlined />}
+            >
               <Option value={5}>5 seconds</Option>
               <Option value={10}>10 seconds</Option>
               <Option value={20}>20 seconds</Option>
@@ -185,6 +309,27 @@ function SlideDetail(props) {
               <Option value={240}>4 minutes</Option>
             </Select>
           </Form.Item>
+          {slide.current.questionType ===
+            QuestionType.QUESTION_CHOICE_ANSWER && (
+            <>
+              <Title level={4}>
+                <SettingOutlined /> Question Option
+              </Title>
+              <Form.Item
+                name="multiSelect"
+                rules={[{ type: "boolean", required: false }]}
+              >
+                <Select
+                  defaultActiveFirstOption
+                  placeholder=""
+                  menuItemSelectedIcon={<CheckOutlined />}
+                >
+                  <Option value={false}>Single select</Option>
+                  <Option value={true}>Multi-select</Option>
+                </Select>
+              </Form.Item>
+            </>
+          )}
           <Button danger onClick={() => props.deleteSlide(slide.current.id)}>
             Delete
           </Button>

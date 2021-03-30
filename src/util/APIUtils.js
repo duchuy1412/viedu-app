@@ -69,11 +69,11 @@ export function updatePresentation(presentationData) {
   });
 }
 
-export function addToPresentation(question, presentationId) {
+export function addToPresentation(questions, presentationId) {
   return request({
-    url: API_BASE_URL + "/presentation/" + presentationId + "/addQuestion",
+    url: API_BASE_URL + "/presentation/" + presentationId + "/addQuestions",
     method: "POST",
-    body: JSON.stringify(question),
+    body: JSON.stringify(questions),
   });
 }
 

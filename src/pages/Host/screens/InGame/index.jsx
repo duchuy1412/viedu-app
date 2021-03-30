@@ -1,35 +1,23 @@
 import {
   CheckOutlined,
-  ClockCircleOutlined,
   CloseOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  message,
-  Progress,
-  Row,
-  Statistic,
-  Tooltip,
-  Typography,
-} from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import { Button, Col, message, Row, Tooltip, Typography } from "antd";
+import { WS_BASE_URL } from "constants/index";
+import Delayed from "pages/Host/Delayed";
+import React, { useEffect, useState } from "react";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import styled from "styled-components";
-import Animate from "react-smooth";
-
 import { getPresentation } from "util/APIUtils";
-import { WS_BASE_URL } from "constants/index";
-import ProgressBar from "./../../ProgressBar";
-import Delayed from "pages/Host/Delayed";
+import * as QuestionType from "util/QuestionType";
 import CountdownTimer from "./../../CountdownTimer";
+import ProgressBar from "./../../ProgressBar";
 
 const ToolBar = styled.div`
   display: flex;
@@ -62,8 +50,6 @@ InGame.propTypes = {};
 
 var stompClient = null;
 
-const { Countdown } = Statistic;
-
 const answerOptions = [
   { icon: "A", color: "red" },
   { icon: "B", color: "blue" },
@@ -86,21 +72,6 @@ function InGame(props) {
   // useEffect(() => {
   //   rendered.current = rendered.current + 1;
   // });
-
-  // const steps = [
-  //   {
-  //     style: {
-  //       opacity: 0,
-  //     },
-  //     duration: 5000,
-  //   },
-  //   {
-  //     style: {
-  //       opacity: 1,
-  //     },
-  //     duration: 200,
-  //     easing: "ease",
-  //   },
   // ];
 
   function connect() {
@@ -224,12 +195,11 @@ function InGame(props) {
   }
 
   async function sendQuestion() {
-    let sendContent = question.data.id.concat(
-      "|",
-      question.data.questionType,
-      "|",
-      question.data.title
-    );
+    let sendObject = JSON.parse(JSON.stringify(question.data));
+    sendObject.answers.map((answer) => delete answer.correct);
+
+    let sendContent = JSON.stringify(sendObject);
+
     stompClient.send(
       `/app/game.sendQuestion/${game.pin}`,
       {},
@@ -298,7 +268,7 @@ function InGame(props) {
                 </Col>
               </Row>
               <CenterDiv>
-                <ProgressBar time={5} id={question.data.id} />
+                <ProgressBar time={5000} id={question.data.id} />
               </CenterDiv>
 
               <Delayed waitBeforeShow={5000} key={question.data.id}>
@@ -312,7 +282,11 @@ function InGame(props) {
                   <Col span={5}></Col>
                 </Row>
                 <Row>
-                  {question.data.answers
+                  {question.data.answers &&
+                  (question.data.questionType ===
+                    QuestionType.QUESTION_CHOICE_ANSWER ||
+                    question.data.questionType ===
+                      QuestionType.QUESTION_TRUE_FALSE)
                     ? question.data.answers.map((a, index) => (
                         <Col key={index} span={12}>
                           <OptionBox
@@ -344,6 +318,34 @@ function InGame(props) {
                         </Col>
                       ))
                     : null}
+                  {question.data.answers &&
+                  question.data.questionType ===
+                    QuestionType.QUESTION_INPUT_ANSWER ? (
+                    <>
+                      {!displayResult && (
+                        <div>Please input your answer in your device!</div>
+                      )}
+                      {displayResult &&
+                        question.data.answers.map((a, index) => (
+                          <Col key={index} span={12}>
+                            <OptionBox
+                              style={{
+                                justifyContent: "space-between",
+                                backgroundColor: answerOptions[index].color,
+                              }}
+                            >
+                              <span>
+                                {answerOptions[index].icon}. {a.text}
+                              </span>
+
+                              <span>
+                                <CheckOutlined />
+                              </span>
+                            </OptionBox>
+                          </Col>
+                        ))}
+                    </>
+                  ) : null}
                 </Row>
               </Delayed>
             </>

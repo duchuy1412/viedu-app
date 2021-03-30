@@ -6,6 +6,8 @@ import { WS_BASE_URL } from "constants/index";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import moment from "moment";
+import * as QuestionType from "util/QuestionType";
+import Checkbox from "antd/lib/checkbox/Checkbox";
 
 Instruction.propTypes = {};
 
@@ -18,7 +20,10 @@ function Instruction(props) {
   const [question, setQuestion] = useState(null);
   const [screen, setScreen] = useState({ name: "SC_ANSWER", info: {} }); // Screen state: SC_ANSWER, SC_WAIT, SC_RESULT
 
+  const [optionSelected, setOptionSelected] = useState([]);
+
   let startTime = useRef(null);
+  let inputRef = useRef(null);
 
   const onMessageReceived = useCallback((payload) => {
     let receivedMessage = JSON.parse(payload.body);
@@ -26,12 +31,8 @@ function Instruction(props) {
     if (receivedMessage.type === "SEND_QUESTION") {
       setScreen({ name: "SC_ANSWER", info: {} });
 
-      let messages = receivedMessage.content.split("|");
-      setQuestion({
-        id: messages[0],
-        title: messages[2],
-        questionType: messages[1],
-      });
+      let messages = JSON.parse(receivedMessage.content);
+      setQuestion(messages);
 
       startTime.current = moment();
     }
@@ -87,12 +88,8 @@ function Instruction(props) {
     if (stompClient !== null) stompClient.disconnect();
   }
 
-  function handleInteract(e) {
-    // console.log(e.target.value);
-
-    const answerNum = e.currentTarget.value;
-
-    if (answerNum !== null) {
+  function handleInteract(playerAnswer) {
+    if (playerAnswer !== null) {
       stompClient.send(
         `/app/game.sendResponse/${state.pin}`,
         {
@@ -102,7 +99,7 @@ function Instruction(props) {
         JSON.stringify({
           sender: state.nickname,
           type: "INTERACT",
-          content: answerNum,
+          content: playerAnswer,
         })
       );
     }
@@ -116,28 +113,52 @@ function Instruction(props) {
     };
   }, []);
 
-  // console.log(stompClient);
+  const onCheckboxChange = (e) => {
+    if (e.target.checked === true) {
+      setOptionSelected((optionSelected) => [
+        ...optionSelected,
+        e.target.value,
+      ]);
+    } else {
+      setOptionSelected(
+        optionSelected.filter((option) => option !== e.target.value)
+      );
+    }
+    console.log(optionSelected);
+  };
 
-  const fourOptions = ["A", "B", "C", "D"];
-  const fourButtonOptions = fourOptions.map((option, index) => (
+  const submitQuestionChoice = () => {
+    let playerSelected = optionSelected.join(); // join array to string
+    handleInteract(playerSelected);
+  };
+
+  const submitQuestionInput = () => {
+    let playerInput = inputRef.current.value;
+    handleInteract(playerInput);
+  };
+
+  const options = question
+    ? question.questionType === QuestionType.QUESTION_CHOICE_ANSWER
+      ? ["A", "B", "C", "D"]
+      : ["A", "B"]
+    : [];
+
+  const buttonOptions = options.map((option, index) => (
     <Button
       key={index}
       value={index}
-      onClick={(e) => handleInteract(e, "value")}
+      onClick={(e) => handleInteract(e.currentTarget.value)}
     >
-      {option}
+      {option} {question ? question.answers[index].text : ""}
     </Button>
   ));
 
-  const twoOptions = ["True", "False"];
-  const twoButtonOptions = twoOptions.map((option, index) => (
-    <Button
-      key={index}
-      value={index}
-      onClick={(e) => handleInteract(e, "value")}
-    >
-      {option}
-    </Button>
+  const buttonMultiSelect = options.map((option, index) => (
+    <div key={index}>
+      <Checkbox value={index} onChange={onCheckboxChange}>
+        {option} {question ? question.answers[index].text : ""}
+      </Checkbox>
+    </div>
   ));
 
   return (
@@ -146,18 +167,23 @@ function Instruction(props) {
         question !== null ? (
           <div>
             <div>{question.title}</div>
-            {question.questionType === "QUESTION_CHOICE_ANSWER" ? (
-              <span>
-                <Space>{fourButtonOptions}</Space>
-              </span>
-            ) : question.questionType === "QUESTION_TRUE_FALSE" ? (
-              <span>
-                <Space>{twoButtonOptions}</Space>
-              </span>
+            {question.questionType === QuestionType.QUESTION_CHOICE_ANSWER ||
+            question.questionType === QuestionType.QUESTION_TRUE_FALSE ? (
+              question.multiSelect === true ? (
+                <div>
+                  <Space>{buttonMultiSelect}</Space>
+                  <Button onClick={submitQuestionChoice}>Submit</Button>
+                </div>
+              ) : (
+                <div>
+                  <Space>{buttonOptions}</Space>
+                </div>
+              )
             ) : (
-              <span>
-                <Input />
-              </span>
+              <div>
+                <Input ref={inputRef} />
+                <Button onClick={submitQuestionInput}>Submit</Button>
+              </div>
             )}
           </div>
         ) : (

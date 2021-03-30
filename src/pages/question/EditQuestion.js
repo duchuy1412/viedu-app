@@ -11,9 +11,9 @@ import {
   Row,
   Checkbox,
   notification,
-  Radio,
   Switch,
   Card,
+  Typography,
 } from "antd";
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
@@ -22,23 +22,42 @@ import "./EditQuestion.css";
 import score from "./../../util/score";
 import { updateQuestion, getQuestion } from "./../../util/APIUtils";
 import LoadingIndicator from "./../../common/LoadingIndicator";
-import { PlusOutlined } from "@ant-design/icons";
+import {
+  CheckOutlined,
+  ClockCircleOutlined,
+  PlusOutlined,
+  SettingOutlined,
+  SketchOutlined,
+} from "@ant-design/icons";
+import styled from "styled-components";
+import * as QuestionType from "util/QuestionType";
 
-const { Content, Sider } = Layout;
+const { Content } = Layout;
 const { Option } = Select;
+const { Title } = Typography;
+
+const TitleInput = styled(Input)`
+  font-size: 3em;
+  font-weight: bold;
+  border: 2px solid dodgerblue;
+  border-radius: 3px;
+
+  margin: ${(props) => props.size};
+  padding: ${(props) => props.size};
+`;
 
 const layout = {
   labelCol: {
-    span: 4,
+    span: 6,
   },
   wrapperCol: {
-    span: 8,
+    span: 24,
   },
 };
 const tailLayout = {
   wrapperCol: {
-    offset: 4,
-    span: 16,
+    offset: 10,
+    span: 24,
   },
 };
 
@@ -119,7 +138,12 @@ const EditQuestion = () => {
               minHeight: 280,
             }}
           >
-            <Form {...layout} form={form} onFinish={handleSubmit}>
+            <Form
+              {...layout}
+              form={form}
+              onFinish={handleSubmit}
+              layout="vertical"
+            >
               <Form.Item name="questionType" hidden>
                 <Input placeholder="Question type" disabled />
               </Form.Item>
@@ -129,8 +153,14 @@ const EditQuestion = () => {
               <Form.Item name="modifiedAt" hidden>
                 <Input placeholder="modifiedAt" disabled />
               </Form.Item>
-              <Form.Item name="title" label="Your question">
-                <Input placeholder="Enter your question" />
+              <Form.Item
+                name="title"
+                label={<Title level={4}>Your question</Title>}
+              >
+                <TitleInput
+                  placeholder="Enter your question"
+                  autoComplete="off"
+                />
               </Form.Item>
 
               <Divider />
@@ -138,7 +168,8 @@ const EditQuestion = () => {
                 {(answers, { add, remove }) => {
                   return (
                     <div>
-                      {question.questionType === "QUESTION_CHOICE_ANSWER"
+                      {question.questionType ===
+                      QuestionType.QUESTION_CHOICE_ANSWER
                         ? answers.map((answer, index) => (
                             <div key={answer.key}>
                               <Form.Item label={`Option ${index + 1}`}>
@@ -178,7 +209,8 @@ const EditQuestion = () => {
                               </Form.Item>
                             </div>
                           ))
-                        : question.questionType === "QUESTION_TRUE_FALSE"
+                        : question.questionType ===
+                          QuestionType.QUESTION_TRUE_FALSE
                         ? answers.map((answer, index) => (
                             <div key={answer.key}>
                               <Form.Item label={`Option ${index + 1}`}>
@@ -203,6 +235,7 @@ const EditQuestion = () => {
                                         style={{ fontSize: 15 }}
                                         name="inpRadio"
                                         type="radio"
+                                        checked={false}
                                       />
                                     </Form.Item>
                                   </Col>
@@ -220,7 +253,8 @@ const EditQuestion = () => {
                               </Form.Item>
                             </div>
                           ))
-                        : question.questionType === "QUESTION_INPUT_ANSWER"
+                        : question.questionType ===
+                          QuestionType.QUESTION_INPUT_ANSWER
                         ? answers.map((answer, index) => (
                             <div key={answer.key}>
                               <Form.Item label={`Correct answer ${index + 1}`}>
@@ -264,12 +298,18 @@ const EditQuestion = () => {
                           ))
                         : "The type of question has not been determined"}
                       {answers.length < 4 &&
-                      question.questionType !== "QUESTION_TRUE_FALSE" ? (
+                      question.questionType !==
+                        QuestionType.QUESTION_TRUE_FALSE ? (
                         <Form.Item>
                           <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }}>
                             <Button
                               type="dashed"
-                              onClick={() => add()}
+                              onClick={() =>
+                                question.questionType ===
+                                QuestionType.QUESTION_INPUT_ANSWER
+                                  ? add({ text: "", correct: true })
+                                  : add()
+                              }
                               style={{ width: "60%" }}
                             >
                               <PlusOutlined /> Add more
@@ -285,8 +325,13 @@ const EditQuestion = () => {
               <Divider />
 
               <Form.Item
+                wrapperCol={{ span: 8 }}
                 name="score"
-                label="Score"
+                label={
+                  <Title level={4}>
+                    <SketchOutlined /> Points
+                  </Title>
+                }
                 initialValue={0}
                 rules={[{ type: "number", required: false }]}
               >
@@ -294,11 +339,19 @@ const EditQuestion = () => {
               </Form.Item>
 
               <Form.Item
+                wrapperCol={{ span: 5 }}
                 name="seconds"
-                label="Time"
+                label={
+                  <Title level={4}>
+                    <ClockCircleOutlined /> Time to answer
+                  </Title>
+                }
                 rules={[{ type: "number", required: false }]}
               >
-                <Select placeholder="Choose a time" style={{ width: 150 }}>
+                <Select
+                  placeholder="Choose a time"
+                  menuItemSelectedIcon={<CheckOutlined />}
+                >
                   <Option value={5}>5 seconds</Option>
                   <Option value={10}>10 seconds</Option>
                   <Option value={20}>20 seconds</Option>
@@ -310,14 +363,25 @@ const EditQuestion = () => {
                 </Select>
               </Form.Item>
 
-              {question.questionType === "QUESTION_CHOICE_ANSWER" ? (
+              {question.questionType === QuestionType.QUESTION_CHOICE_ANSWER ? (
                 <Form.Item
+                  wrapperCol={{ span: 5 }}
+                  label={
+                    <Title level={4}>
+                      <SettingOutlined /> Question Option
+                    </Title>
+                  }
                   name="multiSelect"
-                  label="Multi-Select"
-                  valuePropName="checked"
                   rules={[{ require: false, type: "boolean" }]}
                 >
-                  <Switch checked={false} />
+                  <Select
+                    defaultActiveFirstOption
+                    placeholder=""
+                    menuItemSelectedIcon={<CheckOutlined />}
+                  >
+                    <Option value={false}>Single select</Option>
+                    <Option value={true}>Multi-select</Option>
+                  </Select>
                 </Form.Item>
               ) : null}
 
