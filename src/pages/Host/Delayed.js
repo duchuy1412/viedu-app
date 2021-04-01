@@ -3,21 +3,23 @@ import PropTypes from "prop-types";
 
 Delayed.propTypes = {
   waitBeforeShow: PropTypes.number.isRequired,
-  key: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
 };
 
 function Delayed(props) {
   const [hidden, setHidden] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     setTimeout(() => {
-      setHidden(false);
+      if (mounted) setHidden(false);
     }, props.waitBeforeShow);
 
     return () => {
+      mounted = false;
       setHidden(true);
     };
-  }, [props.key]);
+  }, [props.id]);
 
   return hidden ? <></> : props.children;
 }

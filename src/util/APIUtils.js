@@ -159,6 +159,13 @@ export function createGame(gameData) {
   });
 }
 
+export function getGame(gameId) {
+  return request({
+    url: API_BASE_URL + "/game/" + gameId,
+    method: "GET",
+  });
+}
+
 export function updateGame(gameData) {
   return request({
     url: API_BASE_URL + "/game",

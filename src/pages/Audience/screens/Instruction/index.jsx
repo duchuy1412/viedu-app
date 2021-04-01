@@ -1,6 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
-import { Button, Input, message, Result, Space } from "antd";
+import {
+  Button,
+  Input,
+  message,
+  Result,
+  Form,
+  Row,
+  Col,
+  Typography,
+} from "antd";
 import { useHistory, useLocation } from "react-router-dom";
 import { WS_BASE_URL } from "constants/index";
 import SockJS from "sockjs-client";
@@ -8,8 +17,31 @@ import Stomp from "stompjs";
 import moment from "moment";
 import * as QuestionType from "util/QuestionType";
 import Checkbox from "antd/lib/checkbox/Checkbox";
+import styled from "styled-components";
 
 Instruction.propTypes = {};
+
+const CenterDiv = styled.div`
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const OptionBox = styled(Button)`
+  flex: 1;
+  height: 10vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: white;
+  font-size: 15;
+  font-weight: bold;
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 8px;
+  margin: 5px;
+`;
 
 var stompClient = null;
 function Instruction(props) {
@@ -23,10 +55,13 @@ function Instruction(props) {
   const [optionSelected, setOptionSelected] = useState([]);
 
   let startTime = useRef(null);
-  let inputRef = useRef(null);
 
   const onMessageReceived = useCallback((payload) => {
     let receivedMessage = JSON.parse(payload.body);
+
+    if (receivedMessage.type === "END") {
+      history.replace("/audience");
+    }
 
     if (receivedMessage.type === "SEND_QUESTION") {
       setScreen({ name: "SC_ANSWER", info: {} });
@@ -57,11 +92,14 @@ function Instruction(props) {
               hidden: false,
             }
       );
-      // setScreen({
-      //   name: "SC_HALFTIME",
-      //   info: { status: 0, title: "HALF TIME" },
-      //   hidden: false,
-      // });
+    }
+
+    if (receivedMessage.type === "SCORE_BOARD") {
+      setScreen((screen) => ({
+        name: "SC_SCOREBOARD",
+        info: { status: 1, title: "SCOREBOARD SCOREBOARD SCOREBOARD" },
+        hidden: false,
+      }));
     }
   }, []);
 
@@ -132,31 +170,52 @@ function Instruction(props) {
     handleInteract(playerSelected);
   };
 
-  const submitQuestionInput = () => {
-    let playerInput = inputRef.current.value;
+  const submitQuestionInput = (values) => {
+    let { playerInput } = values;
+    console.log(values);
     handleInteract(playerInput);
   };
 
   const options = question
     ? question.questionType === QuestionType.QUESTION_CHOICE_ANSWER
-      ? ["A", "B", "C", "D"]
-      : ["A", "B"]
+      ? [
+          { icon: "A", color: "red" },
+          { icon: "B", color: "blue" },
+          { icon: "C", color: "orange" },
+          { icon: "D", color: "green" },
+        ]
+      : [
+          { icon: "A", color: "red" },
+          { icon: "B", color: "blue" },
+        ]
     : [];
 
   const buttonOptions = options.map((option, index) => (
-    <Button
-      key={index}
-      value={index}
-      onClick={(e) => handleInteract(e.currentTarget.value)}
+    <Col
+      span={12}
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      {option} {question ? question.answers[index].text : ""}
-    </Button>
+      <OptionBox
+        style={{
+          backgroundColor: option.color,
+        }}
+        key={index}
+        value={index}
+        onClick={(e) => handleInteract(e.currentTarget.value)}
+      >
+        {option.icon} {question.answers ? question.answers[index].text : ""}
+      </OptionBox>
+    </Col>
   ));
 
   const buttonMultiSelect = options.map((option, index) => (
     <div key={index}>
       <Checkbox value={index} onChange={onCheckboxChange}>
-        {option} {question ? question.answers[index].text : ""}
+        {option.icon} {question.answers ? question.answers[index].text : ""}
       </Checkbox>
     </div>
   ));
@@ -165,25 +224,55 @@ function Instruction(props) {
     <>
       {screen.name === "SC_ANSWER" ? (
         question !== null ? (
-          <div>
-            <div>{question.title}</div>
+          <div style={{ margin: 5 }}>
+            <Row style={{ backgroundColor: "Background" }}>
+              <Col xl={24}>
+                <CenterDiv>
+                  <Typography.Text strong style={{ fontSize: 25 }}>
+                    {question.title ? question.title : ""}
+                  </Typography.Text>
+                </CenterDiv>
+              </Col>
+            </Row>
+
             {question.questionType === QuestionType.QUESTION_CHOICE_ANSWER ||
             question.questionType === QuestionType.QUESTION_TRUE_FALSE ? (
               question.multiSelect === true ? (
-                <div>
-                  <Space>{buttonMultiSelect}</Space>
-                  <Button onClick={submitQuestionChoice}>Submit</Button>
-                </div>
+                <>
+                  <Row>{buttonMultiSelect}</Row>
+                  <Row span={24}>
+                    <Button onClick={submitQuestionChoice}>Submit</Button>
+                  </Row>
+                </>
               ) : (
-                <div>
-                  <Space>{buttonOptions}</Space>
-                </div>
+                <Row>{buttonOptions}</Row>
               )
             ) : (
-              <div>
-                <Input ref={inputRef} />
-                <Button onClick={submitQuestionInput}>Submit</Button>
-              </div>
+              <Form onFinish={submitQuestionInput}>
+                <Row>
+                  <Col span={12} offset={6}>
+                    <CenterDiv
+                      style={{ paddingTop: "20px", paddingBottom: "20px" }}
+                    >
+                      <Form.Item name="playerInput">
+                        <Input placeholder="Input your answer" />
+                      </Form.Item>
+                    </CenterDiv>
+                  </Col>
+                </Row>
+
+                <Row>
+                  <Col span={8} offset={8}>
+                    <CenterDiv>
+                      <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                          Submit
+                        </Button>
+                      </Form.Item>
+                    </CenterDiv>
+                  </Col>
+                </Row>
+              </Form>
             )}
           </div>
         ) : (
@@ -203,6 +292,9 @@ function Instruction(props) {
       ) : null}
       {screen.hidden && screen.name === "SC_RESULT" ? (
         <Result status="success" title="Waiting for the result" extra={[]} />
+      ) : null}
+      {screen.name === "SC_SCOREBOARD" ? (
+        <ResultView status={screen.info.status} title={screen.info.title} />
       ) : null}
     </>
   );
