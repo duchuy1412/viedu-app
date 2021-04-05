@@ -11,7 +11,6 @@ import {
   Row,
   Checkbox,
   notification,
-  Switch,
   Card,
   Typography,
 } from "antd";
@@ -25,12 +24,15 @@ import LoadingIndicator from "./../../common/LoadingIndicator";
 import {
   CheckOutlined,
   ClockCircleOutlined,
+  FileImageOutlined,
+  PictureOutlined,
   PlusOutlined,
   SettingOutlined,
   SketchOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
 import * as QuestionType from "util/QuestionType";
+import PicturesWall from "./PicturesWall";
 
 const { Content } = Layout;
 const { Option } = Select;
@@ -164,6 +166,17 @@ const EditQuestion = () => {
               </Form.Item>
 
               <Divider />
+              <Form.Item
+                name="image"
+                label={
+                  <Title level={4}>
+                    <PictureOutlined /> Image
+                  </Title>
+                }
+              >
+                <PicturesWall />
+              </Form.Item>
+
               <Form.List name="answers" initialValue={["", ""]}>
                 {(answers, { add, remove }) => {
                   return (
