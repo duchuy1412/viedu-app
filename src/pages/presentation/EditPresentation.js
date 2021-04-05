@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Layout,
   Modal,
@@ -10,25 +10,38 @@ import {
   Menu,
   message,
   Typography,
+  Dropdown,
 } from "antd";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
-import { getPresentation, addToPresentation } from "./../../util/APIUtils";
+import {
+  getPresentation,
+  addToPresentation,
+  deleteFromPresentation,
+} from "./../../util/APIUtils";
 
 import SingleSlide from "./SingleSlide";
-import { updateSlide, deleteOneSlide, currentSlide } from "./slideSlice";
+import { updateSlide } from "./slideSlice";
 import SlideDetail from "./SlideDetail";
 import "./EditPresentation.css";
 import { useSelector } from "react-redux";
+import {
+  BankOutlined,
+  BlockOutlined,
+  DeleteOutlined,
+  DownOutlined,
+  ExclamationCircleOutlined,
+  FileExcelOutlined,
+} from "@ant-design/icons";
+import QuestionBankDrawer from "./QuestionBankDrawer";
 
 const { Content, Sider } = Layout;
 const { Option } = Select;
+const { confirm } = Modal;
 
 const StyledButton = styled(Button)`
-  background: ${(props) => (props.primary ? "dodgerblue" : "white")};
-  color: ${(props) => (props.primary ? "white" : "dodgerblue")};
   font-size: 1em;
   margin: 1em;
   padding: 0.25em 1em dodgerblue;
@@ -36,6 +49,14 @@ const StyledButton = styled(Button)`
 `;
 
 const StyledSider = styled(Sider)``;
+
+const StyledTinyButton = styled(Button)`
+  padding: 4px 4px;
+  opacity: 0.3;
+  &:hover {
+    opacity: 1;
+  }
+`;
 
 const EditPresentation = () => {
   const { presentationId } = useParams();
@@ -46,10 +67,15 @@ const EditPresentation = () => {
   const [confirmLoading, setConfirmLoading] = useState(false); // for loading when call api to create new question
 
   const [form] = Form.useForm();
-  const [description, setDescription] = useState(""); // description for type of question
+  const [questionType, setQuestionType] = useState({
+    name: "",
+    description: "",
+  });
 
   const dispatch = useDispatch();
   const slide = useSelector((state) => state.slides);
+
+  const questionBankDrawer = useRef(null);
 
   //When click a Slide in Sidebar
   const onMenuItemClick = (clickItem) => {
@@ -68,40 +94,48 @@ const EditPresentation = () => {
       return;
     }
 
-    dispatch(deleteOneSlide({ slideId: questionId, id: presentationId })).then(
-      () => {
-        console.log("bla");
-      }
-    );
+    confirm({
+      title: "Do you want to delete this question?",
+      icon: <ExclamationCircleOutlined />,
+      content: "You cannot undo once a question is deleted",
+      onOk() {
+        deleteFromPresentation(questionId, presentationId).then(() => {
+          console.log("Deleted question in presentation!");
+        });
 
-    let indexDelete; // indexDelete = index + 1 to avoid indexDelete equals 0 cause error
-    questions.list.find((e, index) =>
-      e.id === questions.activeId
-        ? (indexDelete = index + 1)
-        : (indexDelete = undefined)
-    );
+        let indexDelete; // indexDelete = index + 1 to avoid indexDelete equals 0 cause error
+        questions.list.find((e, index) =>
+          e.id === questions.activeId
+            ? (indexDelete = index + 1)
+            : (indexDelete = undefined)
+        );
 
-    --indexDelete; // to make "indexDelete" is index of its in array
+        --indexDelete; // to make "indexDelete" is index of its in array
 
-    let nextActiveId;
-    if (indexDelete === length - 1) {
-      //deleting last element
-      nextActiveId = questions.list[indexDelete - 1].id;
-    } else {
-      nextActiveId = questions.list[indexDelete + 1].id;
-    }
+        let nextActiveId;
+        if (indexDelete === length - 1) {
+          //deleting last element
+          nextActiveId = questions.list[indexDelete - 1].id;
+        } else {
+          nextActiveId = questions.list[indexDelete + 1].id;
+        }
 
-    //duplicate list and delete a element from array
-    let newList = questions.list;
-    newList.splice(indexDelete, 1);
+        //duplicate list and delete a element from array
+        let newList = questions.list;
+        newList.splice(indexDelete, 1);
 
-    console.log(nextActiveId);
-    console.log(newList);
+        console.log(nextActiveId);
+        console.log(newList);
 
-    // dispatch(currentSlide(questions.list[indexPrev - 1]));
-    setQuestions({
-      list: newList,
-      activeId: nextActiveId,
+        // dispatch(currentSlide(questions.list[indexPrev - 1]));
+        setQuestions({
+          list: newList,
+          activeId: nextActiveId,
+        });
+      },
+      onCancel() {
+        console.log("Cancel");
+      },
     });
   }
 
@@ -125,15 +159,32 @@ const EditPresentation = () => {
 
   // handle when Add new question
   const handleSubmit = (values) => {
-    const typeOfQuestion = Object.assign({}, values);
+    let answersField;
+    if (values.questionType === "QUESTION_TRUE_FALSE") {
+      answersField = { answers: [{ text: "TRUE" }, { text: "FALSE" }] };
+      values = { ...values, ...answersField };
+    }
+
+    if (values.questionType === "QUESTION_INPUT_ANSWER") {
+      answersField = {
+        answers: [
+          { text: "", correct: true },
+          { text: "", correct: true },
+        ],
+      };
+      values = { ...values, ...answersField };
+    }
+    // console.log(values);
+
+    const newQuestion = Object.assign({}, values);
 
     setConfirmLoading(true);
-    addToPresentation(typeOfQuestion, presentationId)
+    addToPresentation([newQuestion], presentationId)
       .then((response) => {
         setQuestions((questions) => ({
           ...questions,
-          list: [...questions.list, response],
-          activeId: response.id,
+          list: [...questions.list, ...response],
+          activeId: response ? response[0].id : questions.activeId,
         }));
         message.success("New question");
       })
@@ -148,23 +199,51 @@ const EditPresentation = () => {
     form.resetFields();
   };
 
-  // handle when change type of question
+  // handle when change Question Type
   function handleChange(value) {
     switch (value) {
       case "QUESTION_CHOICE_ANSWER":
-        setDescription(
-          "Gives players several answer alternatives to choose from "
-        );
+        setQuestionType({
+          name: value,
+          description:
+            "Gives players several answer alternatives to choose from ",
+        });
         break;
       case "QUESTION_TRUE_FALSE":
-        setDescription("Let players decided if the statement is true or false");
+        setQuestionType({
+          name: value,
+          description: "Let players decided if the statement is true or false",
+        });
         break;
       case "QUESTION_INPUT_ANSWER":
-        setDescription("Let players input a answer");
+        setQuestionType({
+          name: value,
+          description: "Let players input a answer",
+        });
         break;
 
       default:
-        setDescription("");
+        setQuestionType({
+          name: "QUESTION_CHOICE_ANSWER",
+          description: "",
+        });
+        break;
+    }
+  }
+
+  // handle when click menu Import
+  function handleMenuClick(e) {
+    // message.info("Click on menu item.");
+    // console.log("click", e.key);
+    switch (e.key) {
+      case "1":
+        console.log("Choose from bank");
+        questionBankDrawer.current.showDrawer();
+        break;
+      case "2":
+        console.log("clicked 2");
+        break;
+      default:
         break;
     }
   }
@@ -196,14 +275,12 @@ const EditPresentation = () => {
               title: "",
             };
 
-            addToPresentation(firstQuestion, presentationId)
+            addToPresentation([firstQuestion], presentationId)
               .then((response) => {
-                // console.log(response);
-
                 setQuestions((questions) => ({
                   ...questions,
-                  list: [...questions.list, response],
-                  activeId: response.id,
+                  list: [...questions.list, ...response],
+                  activeId: response ? response[0].id : questions.activeId,
                 }));
               })
               .catch((error) => console.log(error));
@@ -215,12 +292,27 @@ const EditPresentation = () => {
     return () => (mounted = false);
   }, [presentationId]);
 
+  function refreshQuestionList() {
+    getPresentation(presentationId)
+      .then((response) => {
+        if (response.questionList.length > 0) {
+          setTitle(response.title);
+          setQuestions((questions) => ({
+            ...questions,
+            list: response.questionList,
+            activeId:
+              response.questionList[response.questionList.length - 1].id,
+          }));
+        }
+      })
+      .catch((error) => message.error("Error loading presentation"));
+  }
+
   return (
     <Layout>
-      <StyledSider width={"15vw"}>
+      <StyledSider className="sider-presentation" width={"15vw"}>
         <Row
           style={{ marginTop: 5, marginBottom: 5 }}
-          type="flex"
           justify="space-around"
           align="middle"
         >
@@ -228,12 +320,12 @@ const EditPresentation = () => {
             <Button onClick={() => window.history.back()}>Back</Button>
           </Col>
           <Col>
-            <StyledButton primary="true" onClick={saveChange}>
+            <StyledButton type="primary" onClick={saveChange}>
               Save
             </StyledButton>
           </Col>
         </Row>
-        <Row type="flex" justify="start" align="middle">
+        <Row justify="start" align="middle">
           <Col offset={2} span={19}>
             <Typography.Title
               level={3}
@@ -250,7 +342,7 @@ const EditPresentation = () => {
             <Menu.Item
               style={{
                 padding: 5,
-                height: "17vh",
+                height: "18vh",
                 flex: 1,
                 display: "flex",
                 flexWrap: "wrap",
@@ -264,11 +356,20 @@ const EditPresentation = () => {
                   width: "20%",
                   display: "flex",
                   flexDirection: "column",
-                  justifyContent: "space-between",
+                  justifyContent: "center",
                   padding: "0 5px",
                 }}
               >
                 <span>{index + 1}</span>
+                <StyledTinyButton type="text">
+                  <BlockOutlined />
+                </StyledTinyButton>
+                <StyledTinyButton
+                  type="text"
+                  onClick={() => deleteSlide(slide.id)}
+                >
+                  <DeleteOutlined />
+                </StyledTinyButton>
               </div>
               <div
                 style={{
@@ -286,9 +387,33 @@ const EditPresentation = () => {
 
         <Row type="flex" justify="space-around" align="middle">
           <Col>
-            <StyledButton primary="true" onClick={showModal}>
+            <StyledButton type="primary" onClick={showModal}>
               Add question
             </StyledButton>
+          </Col>
+          <Col>
+            <Dropdown
+              overlay={
+                <Menu onClick={handleMenuClick}>
+                  <Menu.Item key="1" icon={<BankOutlined />}>
+                    Import your questions
+                  </Menu.Item>
+                  <Menu.Item key="2" icon={<FileExcelOutlined />}>
+                    Import from a file
+                  </Menu.Item>
+                </Menu>
+              }
+            >
+              <StyledButton>
+                Import <DownOutlined />
+              </StyledButton>
+            </Dropdown>
+
+            <QuestionBankDrawer
+              ref={questionBankDrawer}
+              presentationId={presentationId}
+              refreshQuestions={refreshQuestionList}
+            />
           </Col>
         </Row>
       </StyledSider>
@@ -318,7 +443,7 @@ const EditPresentation = () => {
             </Select>
           </Form.Item>
         </Form>
-        <p>{description}</p>
+        <p>{questionType.description}</p>
       </Modal>
       <Content
         className="site-layout-background"

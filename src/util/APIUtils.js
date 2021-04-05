@@ -69,11 +69,11 @@ export function updatePresentation(presentationData) {
   });
 }
 
-export function addToPresentation(question, presentationId) {
+export function addToPresentation(questions, presentationId) {
   return request({
-    url: API_BASE_URL + "/presentation/" + presentationId + "/addQuestion",
+    url: API_BASE_URL + "/presentation/" + presentationId + "/addQuestions",
     method: "POST",
-    body: JSON.stringify(question),
+    body: JSON.stringify(questions),
   });
 }
 
@@ -156,6 +156,13 @@ export function createGame(gameData) {
     url: API_BASE_URL + "/game",
     method: "POST",
     body: JSON.stringify(gameData),
+  });
+}
+
+export function getGame(gameId) {
+  return request({
+    url: API_BASE_URL + "/game/" + gameId,
+    method: "GET",
   });
 }
 

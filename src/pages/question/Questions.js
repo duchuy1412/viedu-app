@@ -59,6 +59,16 @@ const Questions = (props) => {
       values = { ...values, ...answersField };
     }
 
+    if (values.questionType === "QUESTION_INPUT_ANSWER") {
+      answersField = {
+        answers: [
+          { text: "", correct: true },
+          { text: "", correct: true },
+        ],
+      };
+      values = { ...values, ...answersField };
+    }
+
     const newQuestion = Object.assign({}, values);
 
     setConfirmLoading(true);

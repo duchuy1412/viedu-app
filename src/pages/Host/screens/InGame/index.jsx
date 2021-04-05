@@ -1,35 +1,25 @@
 import {
   CheckOutlined,
-  ClockCircleOutlined,
   CloseOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  message,
-  Progress,
-  Row,
-  Statistic,
-  Tooltip,
-  Typography,
-} from "antd";
-import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { Button, Col, message, Row, Tooltip, Typography } from "antd";
+import { WS_BASE_URL } from "constants/index";
+import Delayed from "pages/Host/Delayed";
+import React, { useEffect, useState } from "react";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
-import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import styled from "styled-components";
-import Animate from "react-smooth";
-
 import { getPresentation } from "util/APIUtils";
-import { WS_BASE_URL } from "constants/index";
-import ProgressBar from "./../../ProgressBar";
-import Delayed from "pages/Host/Delayed";
+import * as QuestionType from "util/QuestionType";
 import CountdownTimer from "./../../CountdownTimer";
+import ProgressBar from "./../../ProgressBar";
+import ScoreBoard from "../ScoreBoard";
+import { currentGame, updateGameStatus } from "pages/Host/hostSlice";
 
 const ToolBar = styled.div`
   display: flex;
@@ -62,8 +52,6 @@ InGame.propTypes = {};
 
 var stompClient = null;
 
-const { Countdown } = Statistic;
-
 const answerOptions = [
   { icon: "A", color: "red" },
   { icon: "B", color: "blue" },
@@ -78,6 +66,9 @@ function InGame(props) {
   const [presentation, setPresentation] = useState({});
   const [question, setQuestion] = useState({ data: {}, index: -1 });
   const [displayResult, setDisplayResult] = useState(false);
+  const [scoreBoard, setScoreBoard] = useState({ display: false, list: [] });
+
+  const dispatch = useDispatch();
   const handle = useFullScreenHandle();
 
   const { presentationId } = game;
@@ -86,21 +77,6 @@ function InGame(props) {
   // useEffect(() => {
   //   rendered.current = rendered.current + 1;
   // });
-
-  // const steps = [
-  //   {
-  //     style: {
-  //       opacity: 0,
-  //     },
-  //     duration: 5000,
-  //   },
-  //   {
-  //     style: {
-  //       opacity: 1,
-  //     },
-  //     duration: 200,
-  //     easing: "ease",
-  //   },
   // ];
 
   function connect() {
@@ -129,12 +105,14 @@ function InGame(props) {
   function onMessageReceived(payload) {
     var receivedMessage = JSON.parse(payload.body);
 
-    if (receivedMessage.type === "INTERACT") {
-      console.log(receivedMessage.sender + ": " + receivedMessage.content);
+    if (receivedMessage.type === "END") {
+      dispatch(updateGameStatus({ gameStatus: "FINISHED" }));
     }
 
-    if (receivedMessage.type === "SKIP") {
-      // setLive(false);
+    if (receivedMessage.type === "SCORE_BOARD") {
+      let listPlayer = JSON.parse(receivedMessage.content);
+      setScoreBoard((scoreBoard) => ({ ...scoreBoard, list: listPlayer }));
+      dispatch(currentGame({ ...game, players: listPlayer }));
     }
   }
 
@@ -158,7 +136,15 @@ function InGame(props) {
 
     return () => {
       mounted = false;
-      disconnect();
+      stompClient.send(
+        `/app/game.endGame/${game.pin}`,
+        {},
+        JSON.stringify({
+          sender: game.hostedBy,
+          type: "END",
+          content: "Host end game",
+        })
+      );
     };
   }, []);
 
@@ -199,15 +185,35 @@ function InGame(props) {
   }, [question]);
 
   const handleNext = () => {
-    if (question.index < presentation.questionList.length - 1) {
-      setQuestion((question) => ({
-        data: presentation.questionList[question.index + 1],
-        index: question.index + 1,
-      }));
+    if (!scoreBoard.display) {
+      // setQuestion((question) => ({ ...question, data: {} }));
+
+      stompClient.send(
+        `/app/game.getScoreBoard/${game.pin}`,
+        {},
+        JSON.stringify({
+          sender: game.hostedBy,
+          type: "SCORE_BOARD",
+          content: "Get score board",
+        })
+      );
+
+      setScoreBoard((scoreBoard) => ({ ...scoreBoard, display: true }));
     } else {
-      // handle End
-      history.replace("/");
+      setScoreBoard((scoreBoard) => ({ ...scoreBoard, display: false }));
+
+      if (question.index < presentation.questionList.length - 1) {
+        setQuestion((question) => ({
+          data: presentation.questionList[question.index + 1],
+          index: question.index + 1,
+        }));
+      } else {
+        // handle End
+        history.replace("/");
+      }
     }
+
+    console.log(scoreBoard);
   };
 
   function sendSkip() {
@@ -224,12 +230,14 @@ function InGame(props) {
   }
 
   async function sendQuestion() {
-    let sendContent = question.data.id.concat(
-      "|",
-      question.data.questionType,
-      "|",
-      question.data.title
-    );
+    let sendObject = JSON.parse(JSON.stringify(question.data));
+
+    if (sendObject.questionType === QuestionType.QUESTION_INPUT_ANSWER)
+      delete sendObject.answers;
+    else sendObject.answers.map((answer) => delete answer.correct);
+
+    let sendContent = JSON.stringify(sendObject);
+
     stompClient.send(
       `/app/game.sendQuestion/${game.pin}`,
       {},
@@ -280,8 +288,10 @@ function InGame(props) {
                 </Col>
                 <Col xl={16}>
                   <CenterDiv>
-                    <Typography.Text strong style={{ fontSize: 25 }} ellipsis>
-                      {question.data.title ? question.data.title : ""}
+                    <Typography.Text strong style={{ fontSize: 25 }}>
+                      {scoreBoard.display === false && question.data.title
+                        ? question.data.title
+                        : ""}
                     </Typography.Text>
                   </CenterDiv>
                 </Col>
@@ -297,55 +307,103 @@ function InGame(props) {
                   </CenterDiv>
                 </Col>
               </Row>
-              <CenterDiv>
-                <ProgressBar time={5} id={question.data.id} />
-              </CenterDiv>
+              {scoreBoard.display === true ? (
+                <ScoreBoard list={scoreBoard.list}></ScoreBoard>
+              ) : (
+                <>
+                  {question.data.id && (
+                    <div>
+                      <CenterDiv>
+                        <ProgressBar time={5000} id={question.data.id} />
+                      </CenterDiv>
 
-              <Delayed waitBeforeShow={5000} key={question.data.id}>
-                <Row>
-                  <Col span={5}>
-                    <CenterDiv>
-                      <CountdownTimer duration={question.data.seconds} />
-                    </CenterDiv>
-                  </Col>
-                  <Col span={14}></Col>
-                  <Col span={5}></Col>
-                </Row>
-                <Row>
-                  {question.data.answers
-                    ? question.data.answers.map((a, index) => (
-                        <Col key={index} span={12}>
-                          <OptionBox
-                            style={{
-                              justifyContent: displayResult
-                                ? "space-between"
-                                : "flex-start",
-                              backgroundColor: answerOptions[index].color,
-                              opacity: displayResult
-                                ? !a.correct
-                                  ? 0.3
-                                  : 1
-                                : 1,
-                            }}
-                          >
-                            <span>
-                              {answerOptions[index].icon}. {a.text}
-                            </span>
-                            {displayResult ? (
-                              <span>
-                                {a.correct ? (
-                                  <CheckOutlined />
-                                ) : (
-                                  <CloseOutlined />
-                                )}
-                              </span>
-                            ) : null}
-                          </OptionBox>
-                        </Col>
-                      ))
-                    : null}
-                </Row>
-              </Delayed>
+                      <Delayed waitBeforeShow={5000} id={question.data.id}>
+                        <Row>
+                          <Col span={5}>
+                            <CenterDiv>
+                              <CountdownTimer
+                                duration={question.data.seconds}
+                              />
+                            </CenterDiv>
+                          </Col>
+                          <Col span={14}></Col>
+                          <Col span={5}></Col>
+                        </Row>
+                        <Row>
+                          {question.data.answers &&
+                          (question.data.questionType ===
+                            QuestionType.QUESTION_CHOICE_ANSWER ||
+                            question.data.questionType ===
+                              QuestionType.QUESTION_TRUE_FALSE)
+                            ? question.data.answers.map((a, index) => (
+                                <Col key={index} span={12}>
+                                  <OptionBox
+                                    style={{
+                                      justifyContent: displayResult
+                                        ? "space-between"
+                                        : "flex-start",
+                                      backgroundColor:
+                                        answerOptions[index].color,
+                                      opacity: displayResult
+                                        ? !a.correct
+                                          ? 0.3
+                                          : 1
+                                        : 1,
+                                    }}
+                                  >
+                                    <span>
+                                      {answerOptions[index].icon}. {a.text}
+                                    </span>
+                                    {displayResult ? (
+                                      <span>
+                                        {a.correct ? (
+                                          <CheckOutlined />
+                                        ) : (
+                                          <CloseOutlined />
+                                        )}
+                                      </span>
+                                    ) : null}
+                                  </OptionBox>
+                                </Col>
+                              ))
+                            : null}
+                          {question.data.answers &&
+                          question.data.questionType ===
+                            QuestionType.QUESTION_INPUT_ANSWER ? (
+                            <>
+                              {!displayResult && (
+                                <div>
+                                  Please input your answer in your device!
+                                </div>
+                              )}
+                              {displayResult &&
+                                question.data.answers.map((a, index) => (
+                                  <Col key={index} span={12}>
+                                    <OptionBox
+                                      style={{
+                                        justifyContent: "space-between",
+                                        backgroundColor:
+                                          answerOptions[index].color,
+                                      }}
+                                    >
+                                      <span>
+                                        {answerOptions[index].icon}. {a.text}
+                                      </span>
+
+                                      <span>
+                                        <CheckOutlined />
+                                      </span>
+                                    </OptionBox>
+                                  </Col>
+                                ))}
+                            </>
+                          ) : null}
+                        </Row>
+                      </Delayed>
+                    </div>
+                  )}
+                </>
+              )}
             </>
           ) : null}
         </div>

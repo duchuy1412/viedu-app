@@ -9,22 +9,27 @@ import {
 } from "react-router-dom";
 import AppHeader from "../common/AppHeader";
 import { ACCESS_TOKEN } from "../constants";
-import Profile from "../user/profile/Profile";
-import Signup from "../user/signup/Signup";
 import { getCurrentUser } from "../util/APIUtils";
 import LoadingIndicator from "./../common/LoadingIndicator";
 import NotFound from "./../common/NotFound";
 import PrivateRoute from "./../common/PrivateRoute";
-import Presentations from "../pages/presentation/Presentations";
-import Login from "./../user/login/Login";
 import "./App.css";
 import PublicRoute from "../common/PublicRoute";
-import Home from "../pages/landing/Home";
-import Questions from "../pages/question/Questions";
-import Host from "./../pages/Host";
-import Audience from "pages/Audience/index";
 
 const { Content } = Layout;
+
+const Home = React.lazy(() => import("pages/landing/Home"));
+const Audience = React.lazy(() => import("pages/Audience/index"));
+const Host = React.lazy(() => import("pages/Host/index"));
+
+const Presentations = React.lazy(() =>
+  import("pages/presentation/Presentations")
+);
+const Questions = React.lazy(() => import("pages/question/Questions"));
+
+const Login = React.lazy(() => import("user/login/Login"));
+const Signup = React.lazy(() => import("user/signup/Signup"));
+const Profile = React.lazy(() => import("user/profile/Profile"));
 
 const App = (props) => {
   const [currentUser, setCurrentUser] = useState(null);
