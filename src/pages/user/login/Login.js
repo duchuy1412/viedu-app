@@ -2,8 +2,8 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, notification } from "antd";
 import React from "react";
 import "./Login.css";
-import { ACCESS_TOKEN } from "../../constants";
-import { login } from "../../util/APIUtils";
+import { ACCESS_TOKEN } from "../../../constants";
+import { login } from "../../../util/APIUtils";
 
 const Login = (props) => {
   return (

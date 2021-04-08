@@ -27,9 +27,9 @@ const Presentations = React.lazy(() =>
 );
 const Questions = React.lazy(() => import("pages/question/Questions"));
 
-const Login = React.lazy(() => import("user/login/Login"));
-const Signup = React.lazy(() => import("user/signup/Signup"));
-const Profile = React.lazy(() => import("user/profile/Profile"));
+const Login = React.lazy(() => import("pages/user/login/Login"));
+const Signup = React.lazy(() => import("pages/user/signup/Signup"));
+const Profile = React.lazy(() => import("pages/user/profile/Profile"));
 
 const App = (props) => {
   const [currentUser, setCurrentUser] = useState(null);
