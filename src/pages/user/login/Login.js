@@ -63,6 +63,7 @@ const LoginForm = (props) => {
         ]}
       >
         <Input
+          size="large"
           prefix={<UserOutlined className="site-form-item-icon" />}
           placeholder="Username"
         />
@@ -77,6 +78,7 @@ const LoginForm = (props) => {
         ]}
       >
         <Input
+          size="large"
           prefix={<LockOutlined className="site-form-item-icon" />}
           type="password"
           placeholder="Password"

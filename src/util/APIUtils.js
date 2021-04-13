@@ -229,6 +229,26 @@ export function getUserProfile(username) {
   });
 }
 
+export function updateUserProfile(userProfile) {
+  return request({
+    url: API_BASE_URL + "/users",
+    method: "PUT",
+    body: JSON.stringify(userProfile),
+  });
+}
+
+export function updatePassword(password, oldpassword) {
+  return request({
+    url:
+      API_BASE_URL +
+      "/user/updatePassword?password=" +
+      password +
+      "&oldpassword=" +
+      oldpassword,
+    method: "POST",
+  });
+}
+
 // export function getUserCreatedPolls(username, page, size) {
 //     page = page || 0;
 //     size = size || POLL_LIST_SIZE;

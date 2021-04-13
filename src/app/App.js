@@ -123,8 +123,11 @@ const App = (props) => {
               }
             />
             <Route exac path="/signup" component={Signup}></Route>
+            <Route exact path="/user">
+              <Redirect to="/user/profile" />
+            </Route>
             <Route
-              path="/users/:username"
+              path="/user/profile"
               render={(props) => (
                 <Profile
                   isAuthenticated={isAuthenticated}

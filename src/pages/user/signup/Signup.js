@@ -16,8 +16,10 @@ import {
   PASSWORD_MAX_LENGTH,
 } from "../../../constants";
 
-import { Form, Input, Button, notification } from "antd";
+import { Form, Input, Button, notification, Select } from "antd";
+import { ROLE_STUDENT, ROLE_TEACHER } from "./../../../util/Role";
 const FormItem = Form.Item;
+const { Option } = Select;
 
 const Signup = () => {
   let history = useHistory();
@@ -27,6 +29,7 @@ const Signup = () => {
     username: "",
     email: "",
     password: "",
+    role: "",
   });
 
   function handleInputChange(event, validationFun) {
@@ -50,6 +53,7 @@ const Signup = () => {
       email: form.email.value,
       username: form.username.value,
       password: form.password.value,
+      role: form.role.value,
     };
     signup(signupRequest)
       .then((response) => {
@@ -81,6 +85,13 @@ const Signup = () => {
   // Validation Functions
 
   const validateName = (name) => {
+    if (!name) {
+      return {
+        validateStatus: "error",
+        errorMsg: "Name may not be empty",
+      };
+    }
+
     if (name.length < NAME_MIN_LENGTH) {
       return {
         validateStatus: "error",
@@ -129,6 +140,13 @@ const Signup = () => {
   };
 
   const validateUsername = (username) => {
+    if (!username) {
+      return {
+        validateStatus: "error",
+        errorMsg: "Username may not be empty",
+      };
+    }
+
     if (username.length < USERNAME_MIN_LENGTH) {
       return {
         validateStatus: "error",
@@ -286,6 +304,20 @@ const Signup = () => {
     }
   };
 
+  const validateAccountType = (accountType) => {
+    if (!accountType) {
+      return {
+        validateStatus: "error",
+        errorMsg: `Account type may not be empty`,
+      };
+    } else {
+      return {
+        validateStatus: "success",
+        errorMsg: null,
+      };
+    }
+  };
+
   return (
     <div className="signup-container">
       <h1 className="page-title">Sign Up</h1>
@@ -352,6 +384,26 @@ const Signup = () => {
               value={form.password.value}
               onChange={(event) => handleInputChange(event, validatePassword)}
             />
+          </FormItem>
+          <FormItem label="Account Type">
+            <Select
+              size="large"
+              name="role"
+              autoComplete="off"
+              value={form.role.value}
+              onChange={(inputValue) => {
+                setState({
+                  ...form,
+                  role: {
+                    value: inputValue,
+                    ...validateAccountType(inputValue),
+                  },
+                });
+              }}
+            >
+              <Option value={ROLE_STUDENT}>Student</Option>
+              <Option value={ROLE_TEACHER}>Teacher</Option>
+            </Select>
           </FormItem>
           <FormItem>
             <Button
