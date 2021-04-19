@@ -4,7 +4,7 @@ import {
   FullscreenExitOutlined,
   FullscreenOutlined,
 } from "@ant-design/icons";
-import { Button, Col, Image, message, Row, Tooltip, Typography } from "antd";
+import { Button, Col, message, Row, Tooltip, Typography } from "antd";
 import { WS_BASE_URL } from "constants/index";
 import Delayed from "pages/Host/Delayed";
 import React, { useEffect, useState } from "react";
@@ -23,6 +23,8 @@ import { currentGame, updateGameStatus } from "pages/Host/hostSlice";
 
 import { resoleImageURI } from "util/ImageURI";
 import AnswerdCount from "../AnswerdCount";
+
+const { Title } = Typography;
 
 const ToolBar = styled.div`
   display: flex;
@@ -313,7 +315,7 @@ function InGame(props) {
               {scoreBoard.display === true ? (
                 <ScoreBoard list={scoreBoard.list}></ScoreBoard>
               ) : (
-                <>
+                <div>
                   {question.data.id && (
                     <div>
                       <CenterDiv>
@@ -390,9 +392,13 @@ function InGame(props) {
                             QuestionType.QUESTION_INPUT_ANSWER ? (
                             <>
                               {!displayResult && (
-                                <div>
-                                  Please input your answer in your device!
-                                </div>
+                                <Col span={24}>
+                                  <CenterDiv>
+                                    <Title level={4}>
+                                      Please input your answer in your device!
+                                    </Title>
+                                  </CenterDiv>
+                                </Col>
                               )}
                               {displayResult &&
                                 question.data.answers.map((a, index) => (
@@ -420,7 +426,7 @@ function InGame(props) {
                       </Delayed>
                     </div>
                   )}
-                </>
+                </div>
               )}
             </>
           ) : null}

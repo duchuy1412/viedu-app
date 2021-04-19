@@ -86,6 +86,7 @@ function Name(props) {
               placeholder="Enter a nick name"
               maxLength={15}
               onChange={onChange}
+              onPressEnter={hanldeOk}
             />
             <Button
               style={{ width: "100%", marginTop: 10 }}
