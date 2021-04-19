@@ -4,7 +4,7 @@ import {
   FullscreenExitOutlined,
   FullscreenOutlined,
 } from "@ant-design/icons";
-import { Button, Col, message, Row, Tooltip, Typography } from "antd";
+import { Button, Col, Image, message, Row, Tooltip, Typography } from "antd";
 import { WS_BASE_URL } from "constants/index";
 import Delayed from "pages/Host/Delayed";
 import React, { useEffect, useState } from "react";
@@ -20,6 +20,9 @@ import CountdownTimer from "./../../CountdownTimer";
 import ProgressBar from "./../../ProgressBar";
 import ScoreBoard from "../ScoreBoard";
 import { currentGame, updateGameStatus } from "pages/Host/hostSlice";
+
+import { resoleImageURI } from "util/ImageURI";
+import AnswerdCount from "../AnswerdCount";
 
 const ToolBar = styled.div`
   display: flex;
@@ -318,7 +321,7 @@ function InGame(props) {
                       </CenterDiv>
 
                       <Delayed waitBeforeShow={5000} id={question.data.id}>
-                        <Row>
+                        <Row style={{ height: "50vh" }}>
                           <Col span={5}>
                             <CenterDiv>
                               <CountdownTimer
@@ -326,8 +329,23 @@ function InGame(props) {
                               />
                             </CenterDiv>
                           </Col>
-                          <Col span={14}></Col>
-                          <Col span={5}></Col>
+                          <Col span={14}>
+                            <CenterDiv>
+                              <img
+                                alt="Media for question"
+                                src={
+                                  question.data.image
+                                    ? resoleImageURI(question.data.image)
+                                    : "https://i.imgur.com/OhthUOl.png"
+                                }
+                              />
+                            </CenterDiv>
+                          </Col>
+                          <Col span={5}>
+                            <CenterDiv>
+                              <AnswerdCount game={game} />
+                            </CenterDiv>
+                          </Col>
                         </Row>
                         <Row>
                           {question.data.answers &&

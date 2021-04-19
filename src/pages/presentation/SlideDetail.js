@@ -5,6 +5,7 @@ import {
   SketchOutlined,
   PlusOutlined,
   SettingOutlined,
+  PictureOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -17,12 +18,13 @@ import {
   Slider,
   Typography,
 } from "antd";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import score from "../../util/score";
 import { currentSlide } from "./slideSlice";
 import * as QuestionType from "util/QuestionType";
+import PicturesWall from "pages/question/PicturesWall";
 
 SlideDetail.propTypes = {};
 
@@ -87,20 +89,25 @@ function SlideDetail(props) {
 
   function onChange(changedValues, allValues) {
     formValues = { ...slide.current, ...allValues };
-    // console.log(formValues);
     dispatch(currentSlide(formValues));
   }
 
   useEffect(() => {
-    dispatch(currentSlide(content));
+    const onFill = (content) => {
+      form.setFieldsValue({
+        title: content.title,
+        answers: content.answers
+          ? content.answers
+          : [{ text: "" }, { text: "" }],
+        score: content.score,
+        seconds: content.seconds,
+        questionType: content.questionType,
+        image: content.image ? content.image : "",
+      });
+    };
 
-    form.setFieldsValue({
-      title: content.title,
-      answers: content.answers ? content.answers : [{ text: "" }, { text: "" }],
-      score: content.score,
-      seconds: content.seconds,
-      questionType: content.questionType,
-    });
+    onFill(content);
+    dispatch(currentSlide(content));
   }, [content, form, dispatch]);
 
   return (
@@ -116,6 +123,17 @@ function SlideDetail(props) {
         <StyledSlide>
           <Form.Item name="title">
             <TitleInput placeholder="Title question" autoComplete="off" />
+          </Form.Item>
+
+          <Form.Item
+            name="image"
+            label={
+              <Title level={4}>
+                <PictureOutlined /> Image
+              </Title>
+            }
+          >
+            <PicturesWall />
           </Form.Item>
 
           <Form.List name="answers" initialValue={["", ""]}>

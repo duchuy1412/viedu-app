@@ -24,7 +24,6 @@ import LoadingIndicator from "./../../common/LoadingIndicator";
 import {
   CheckOutlined,
   ClockCircleOutlined,
-  FileImageOutlined,
   PictureOutlined,
   PlusOutlined,
   SettingOutlined,
@@ -98,7 +97,7 @@ const EditQuestion = () => {
     setLoading(true);
     getQuestion(questionId)
       .then((response) => {
-        // console.log(response);
+        console.log(response);
         onFill(response);
         setQuestion(response);
         setLoading(false);
@@ -176,6 +175,8 @@ const EditQuestion = () => {
               >
                 <PicturesWall />
               </Form.Item>
+
+              <Divider />
 
               <Form.List name="answers" initialValue={["", ""]}>
                 {(answers, { add, remove }) => {

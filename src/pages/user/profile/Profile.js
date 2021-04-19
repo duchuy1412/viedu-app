@@ -22,13 +22,7 @@ import NotFound from "common/NotFound";
 import ServerError from "common/ServerError";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 
-import {
-  NAME_MIN_LENGTH,
-  NAME_MAX_LENGTH,
-  EMAIL_MAX_LENGTH,
-  PASSWORD_MIN_LENGTH,
-  PASSWORD_MAX_LENGTH,
-} from "constants/index";
+import { PASSWORD_MIN_LENGTH, PASSWORD_MAX_LENGTH } from "constants/index";
 
 const TabPane = Tabs.TabPane;
 

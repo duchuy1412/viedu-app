@@ -89,12 +89,15 @@ const App = (props) => {
     loadCurrentUser();
   }, []);
 
-  if (isLoading) {
-    return <LoadingIndicator />;
-  }
+  // if (isLoading) {
+  //   return <LoadingIndicator />;
+  // }
 
   return (
     <Layout className="app-container">
+      {isLoading && <LoadingIndicator />}
+      {!isLoading && (
+        <>
       <AppHeader
         isAuthenticated={isAuthenticated}
         currentUser={currentUser}
@@ -103,7 +106,9 @@ const App = (props) => {
       <Content className="app-content">
         <div className="container">
           <Switch>
-            {isAuthenticated && <Redirect exact from="/" to="/presentations" />}
+                {isAuthenticated && (
+                  <Redirect exact from="/" to="/presentations" />
+                )}
             <PublicRoute
               restricted={false}
               path="/"
@@ -164,6 +169,8 @@ const App = (props) => {
           </Switch>
         </div>
       </Content>
+        </>
+      )}
     </Layout>
   );
 };

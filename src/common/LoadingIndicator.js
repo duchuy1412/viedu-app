@@ -4,9 +4,6 @@ import { Spin } from "antd";
 
 export default function LoadingIndicator(props) {
   return (
-    <Spin
-      indicator={<LoadingOutlined />}
-      style={{ display: "block", textAlign: "center", marginTop: 30 }}
-    />
+    <Spin style={{ display: "block", textAlign: "center", marginTop: 30 }} />
   );
 }
