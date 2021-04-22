@@ -21,6 +21,15 @@ import ProgressBar from "./../../ProgressBar";
 import ScoreBoard from "../ScoreBoard";
 import { currentGame, updateGameStatus } from "pages/Host/hostSlice";
 
+import { resoleImageURI } from "util/ImageURI";
+import AnswerdCount from "../AnswerdCount";
+import useSound from "use-sound";
+
+import coundownSound from "assets/sounds/beeps.wav";
+import loopMusic from "assets/sounds/loopMusic.wav";
+
+const { Title } = Typography;
+
 const ToolBar = styled.div`
   display: flex;
   flex-direction: row-reverse;
@@ -72,6 +81,13 @@ function InGame(props) {
   const handle = useFullScreenHandle();
 
   const { presentationId } = game;
+
+  const [playCountdown, exposedData] = useSound(coundownSound, {
+    sprite: {
+      fiveSeconds: [4000, 6000],
+    },
+  });
+  const [playLoopMusic, { stop }] = useSound(loopMusic);
 
   // const rendered = useRef(1);
   // useEffect(() => {
@@ -159,17 +175,28 @@ function InGame(props) {
     }
   }, [presentation]);
 
+  const stopMusic = () => stop();
+
   useEffect(() => {
     question.index >= 0
       ? setTimeout(() => {
+          // music
+          playLoopMusic();
+
           // allow players to answer
           sendQuestion();
           // console.log(presentation);
           let count = question.data.seconds;
           const timeAnswer = setInterval(() => {
-            console.log(count);
+            // console.log(count);
+            if (count === 6) {
+              stopMusic();
+              playCountdown({ id: "fiveSeconds" });
+            }
+
             if (count === 0) {
-              console.log("Time up");
+              exposedData.stop();
+              // console.log("Time up");
               clearInterval(timeAnswer);
               //skip
               sendSkip();
@@ -310,7 +337,7 @@ function InGame(props) {
               {scoreBoard.display === true ? (
                 <ScoreBoard list={scoreBoard.list}></ScoreBoard>
               ) : (
-                <>
+                <div>
                   {question.data.id && (
                     <div>
                       <CenterDiv>
@@ -318,7 +345,7 @@ function InGame(props) {
                       </CenterDiv>
 
                       <Delayed waitBeforeShow={5000} id={question.data.id}>
-                        <Row>
+                        <Row style={{ height: "50vh" }}>
                           <Col span={5}>
                             <CenterDiv>
                               <CountdownTimer
@@ -326,8 +353,23 @@ function InGame(props) {
                               />
                             </CenterDiv>
                           </Col>
-                          <Col span={14}></Col>
-                          <Col span={5}></Col>
+                          <Col span={14}>
+                            <CenterDiv>
+                              <img
+                                alt="Media for question"
+                                src={
+                                  question.data.image
+                                    ? resoleImageURI(question.data.image)
+                                    : "https://i.imgur.com/OhthUOl.png"
+                                }
+                              />
+                            </CenterDiv>
+                          </Col>
+                          <Col span={5}>
+                            <CenterDiv>
+                              <AnswerdCount game={game} />
+                            </CenterDiv>
+                          </Col>
                         </Row>
                         <Row>
                           {question.data.answers &&
@@ -372,9 +414,13 @@ function InGame(props) {
                             QuestionType.QUESTION_INPUT_ANSWER ? (
                             <>
                               {!displayResult && (
-                                <div>
-                                  Please input your answer in your device!
-                                </div>
+                                <Col span={24}>
+                                  <CenterDiv>
+                                    <Title level={4}>
+                                      Please input your answer in your device!
+                                    </Title>
+                                  </CenterDiv>
+                                </Col>
                               )}
                               {displayResult &&
                                 question.data.answers.map((a, index) => (
@@ -402,7 +448,7 @@ function InGame(props) {
                       </Delayed>
                     </div>
                   )}
-                </>
+                </div>
               )}
             </>
           ) : null}

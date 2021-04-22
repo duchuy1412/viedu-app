@@ -18,6 +18,8 @@ import moment from "moment";
 import * as QuestionType from "util/QuestionType";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import styled from "styled-components";
+import { OrderedListOutlined } from "@ant-design/icons";
+import Title from "antd/lib/typography/Title";
 
 Instruction.propTypes = {};
 
@@ -60,7 +62,7 @@ function Instruction(props) {
     let receivedMessage = JSON.parse(payload.body);
 
     if (receivedMessage.type === "END") {
-      history.replace("/audience");
+      history.replace("/go");
     }
 
     if (receivedMessage.type === "SEND_QUESTION") {
@@ -88,16 +90,33 @@ function Instruction(props) {
           ? { ...screen, hidden: false }
           : {
               name: "SC_HALFTIME",
-              info: { status: 0, title: "HALF TIME" },
+              info: { status: "0", title: "HALF TIME" },
               hidden: false,
             }
       );
     }
 
     if (receivedMessage.type === "SCORE_BOARD") {
+      let listPlayer = JSON.parse(receivedMessage.content);
+      let currentPoint = 0;
+
+      const rank = (nickname) => {
+        for (var i = 0; i < listPlayer.length; i += 1) {
+          if (listPlayer[i]["nickname"] === nickname) {
+            currentPoint = listPlayer[i]["point"];
+            return i + 1;
+          }
+        }
+        return -1;
+      };
+
       setScreen((screen) => ({
         name: "SC_SCOREBOARD",
-        info: { status: 1, title: "SCOREBOARD SCOREBOARD SCOREBOARD" },
+        info: {
+          status: "1",
+          title: "You are #" + rank(state.nickname),
+          currentPoint: currentPoint,
+        },
         hidden: false,
       }));
     }
@@ -294,7 +313,11 @@ function Instruction(props) {
         <Result status="success" title="Waiting for the result" extra={[]} />
       ) : null}
       {screen.name === "SC_SCOREBOARD" ? (
-        <ResultView status={screen.info.status} title={screen.info.title} />
+        <ResultView
+          title={screen.info.title}
+          icon={<OrderedListOutlined />}
+          extra={<Title level={1}>{screen.info.currentPoint}</Title>}
+        />
       ) : null}
     </>
   );
@@ -304,7 +327,14 @@ function ResultView(props) {
   return (
     <>
       <Result
-        status={props.status === "1" ? "success" : "error"}
+        {...props}
+        status={
+          props.status === "1"
+            ? "success"
+            : props.status === "0"
+            ? "error"
+            : "info"
+        }
         title={props.title}
       ></Result>
     </>

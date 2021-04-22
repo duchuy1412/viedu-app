@@ -26,10 +26,11 @@ const Presentations = React.lazy(() =>
   import("pages/presentation/Presentations")
 );
 const Questions = React.lazy(() => import("pages/question/Questions"));
+const Report = React.lazy(() => import("pages/report/index"));
 
-const Login = React.lazy(() => import("user/login/Login"));
-const Signup = React.lazy(() => import("user/signup/Signup"));
-const Profile = React.lazy(() => import("user/profile/Profile"));
+const Login = React.lazy(() => import("pages/user/login/Login"));
+const Signup = React.lazy(() => import("pages/user/signup/Signup"));
+const Profile = React.lazy(() => import("pages/user/profile/Profile"));
 
 const App = (props) => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -89,51 +90,59 @@ const App = (props) => {
     loadCurrentUser();
   }, []);
 
-  if (isLoading) {
-    return <LoadingIndicator />;
-  }
+  // if (isLoading) {
+  //   return <LoadingIndicator />;
+  // }
 
   return (
     <Layout className="app-container">
-      <AppHeader
-        isAuthenticated={isAuthenticated}
-        currentUser={currentUser}
-        onLogout={handleLogout}
-      />
-      <Content className="app-content">
-        <div className="container">
-          <Switch>
-            {isAuthenticated && <Redirect exact from="/" to="/presentations" />}
-            <PublicRoute
-              restricted={false}
-              path="/"
-              component={Home}
-              exact
-              authenticated={isAuthenticated}
-            />
-            <PublicRoute
-              exact
-              restricted={true}
-              path="/login"
-              authenticated={isAuthenticated}
-              component={(props) =>
-                !isAuthenticated ? (
-                  <Login onLogin={handleLogin} {...props} />
-                ) : null
-              }
-            />
-            <Route exac path="/signup" component={Signup}></Route>
-            <Route
-              path="/users/:username"
-              render={(props) => (
-                <Profile
-                  isAuthenticated={isAuthenticated}
-                  currentUser={currentUser}
-                  {...props}
+      {isLoading && <LoadingIndicator />}
+      {!isLoading && (
+        <>
+          <AppHeader
+            isAuthenticated={isAuthenticated}
+            currentUser={currentUser}
+            onLogout={handleLogout}
+          />
+          <Content className="app-content">
+            <div className="container">
+              <Switch>
+                {isAuthenticated && (
+                  <Redirect exact from="/" to="/presentations" />
+                )}
+                <PublicRoute
+                  restricted={false}
+                  path="/"
+                  component={Home}
+                  exact
+                  authenticated={isAuthenticated}
                 />
-              )}
-            />
-            {/* <PrivateRoute
+                <PublicRoute
+                  exact
+                  restricted={true}
+                  path="/login"
+                  authenticated={isAuthenticated}
+                  component={(props) =>
+                    !isAuthenticated ? (
+                      <Login onLogin={handleLogin} {...props} />
+                    ) : null
+                  }
+                />
+                <Route exac path="/signup" component={Signup}></Route>
+                <Route exact path="/user">
+                  <Redirect to="/user/profile" />
+                </Route>
+                <Route
+                  path="/user/profile"
+                  render={(props) => (
+                    <Profile
+                      isAuthenticated={isAuthenticated}
+                      currentUser={currentUser}
+                      {...props}
+                    />
+                  )}
+                />
+                {/* <PrivateRoute
               authenticated={isAuthenticated}
               path="/presentations"
               component={Presentations}
@@ -145,22 +154,29 @@ const App = (props) => {
               component={Questions}
               handleLogout={handleLogout}
             /> */}
-            <Route
-              path="/presentations"
-              component={Presentations}
-              handleLogout={handleLogout}
-            />
-            <Route
-              path="/questions"
-              component={Questions}
-              handleLogout={handleLogout}
-            />
-            <Route path="/play" component={Host} />
-            <Route path="/audience" component={Audience} />
-            <Route component={NotFound} />
-          </Switch>
-        </div>
-      </Content>
+                <Route
+                  path="/presentations"
+                  component={Presentations}
+                  handleLogout={handleLogout}
+                />
+                <Route
+                  path="/questions"
+                  component={Questions}
+                  handleLogout={handleLogout}
+                />
+                <Route
+                  path="/reports"
+                  component={Report}
+                  handleLogout={handleLogout}
+                />
+                <Route path="/play" component={Host} />
+                <Route path={["/audience", "/go"]} component={Audience} />
+                <Route component={NotFound} />
+              </Switch>
+            </div>
+          </Content>
+        </>
+      )}
     </Layout>
   );
 };

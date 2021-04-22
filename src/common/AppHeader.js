@@ -1,9 +1,19 @@
-import { DownOutlined, NotificationOutlined } from "@ant-design/icons";
-import { Dropdown, Layout, Menu, Typography } from "antd";
+import {
+  BellOutlined,
+  DownOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import { Badge, Dropdown, Layout, Menu, Typography, Avatar } from "antd";
 import { Link, withRouter } from "react-router-dom";
+import { getAvatarColor } from "util/Colors";
 import "./AppHeader.css";
 
 const Header = Layout.Header;
+
+const getFisrtLetter = (string) => {
+  return string ? string[0].toUpperCase() : "U";
+};
 
 const AppHeader = (props) => {
   const { currentUser } = props;
@@ -11,17 +21,12 @@ const AppHeader = (props) => {
   const menu = (
     <Menu>
       <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href="/change-password">
-          Thay đổi mật khẩu
-        </a>
-      </Menu.Item>
-      <Menu.Item>
-        <a target="_blank" rel="noopener noreferrer" href="/settings">
-          Cài đặt
+        <a href="/user">
+          <SettingOutlined /> Cài đặt
         </a>
       </Menu.Item>
       <Menu.Item danger onClick={props.onLogout}>
-        Logout
+        <LogoutOutlined /> Logout
       </Menu.Item>
     </Menu>
   );
@@ -36,30 +41,49 @@ const AppHeader = (props) => {
   if (props.currentUser) {
     menuItems = [
       <Menu.Item key="/notification">
-        <Dropdown overlay={notification} trigger={["click"]}>
+        <Dropdown
+          overlay={notification}
+          placement="bottomCenter"
+          trigger={["click"]}
+        >
           <a
             className="ant-dropdown-link"
             href="/notification"
             onClick={(e) => e.preventDefault()}
           >
-            <NotificationOutlined style={{ fontSize: 25 }} />
+            <Badge dot offset={[-5, 0]}>
+              <BellOutlined style={{ fontSize: 25 }} />
+            </Badge>
           </a>
         </Dropdown>
       </Menu.Item>,
       <Menu.Item key="/profile" className="profile-menu">
         <Dropdown overlay={menu} trigger={["click"]}>
-          <a
-            className="ant-dropdown-link"
-            href="/user/me"
-            onClick={(e) => e.preventDefault()}
-          >
-            {currentUser.name} <DownOutlined />
-          </a>
+          <span>
+            <Avatar
+              style={{
+                color: "#fff",
+                backgroundColor: getAvatarColor(currentUser.name),
+              }}
+            >
+              {getFisrtLetter(currentUser.name)}
+            </Avatar>{" "}
+            <a
+              className="ant-dropdown-link"
+              href="/user"
+              onClick={(e) => e.preventDefault()}
+            >
+              {currentUser.name} <DownOutlined />
+            </a>
+          </span>
         </Dropdown>
       </Menu.Item>,
     ];
   } else {
-    if (props.location.pathname.startsWith("/audience")) {
+    if (
+      props.location.pathname.startsWith("/audience") ||
+      props.location.pathname.startsWith("/go")
+    ) {
       menuItems = [];
     } else {
       menuItems = [

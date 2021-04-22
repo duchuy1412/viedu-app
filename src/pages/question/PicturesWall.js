@@ -1,7 +1,9 @@
 import React from "react";
-import { Upload, Modal, message, Form, Input, Tooltip } from "antd";
+import { Upload, Modal, message, Input, Button, Image } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { BASE_URL } from "constants/index";
+
+import { resoleImageURI } from "util/ImageURI";
 
 function getBase64(file) {
   return new Promise((resolve, reject) => {
@@ -23,13 +25,6 @@ function beforeUpload(file) {
   }
   return isJpgOrPng && isLt5M;
 }
-
-const UploadItem = ({ originNode, file, fileList }) => {
-  const errorNode = (
-    <Tooltip title="Upload Error">{originNode.props.children}</Tooltip>
-  );
-  return <>{file.status === "error" ? errorNode : originNode}</>;
-};
 
 class PicturesWall extends React.Component {
   state = {
@@ -67,16 +62,23 @@ class PicturesWall extends React.Component {
     this.props.onChange?.(this.state.name);
   };
 
-  triggerChange = (changedValue) => {
-    console.log("Im in triggerChange. ChangedValue: " + changedValue);
-    this.props.onChange?.(changedValue);
+  handleRemove = () => {
+    this.props.onChange?.("");
   };
 
-  onNameChange = (e) => {
-    const newname = e.target.value;
-    console.log("Im in onNameChange");
+  componentDidMount() {
+    this.setState({ name: this.props.value });
+  }
 
-    this.triggerChange(newname);
+  componentDidUpdate(prevProps) {
+    if (this.props.value !== prevProps.value) {
+      this.setState({ name: this.props.value });
+    }
+  }
+
+  removeImage = () => {
+    this.setState({ fileList: [], name: "" });
+    this.handleRemove();
   };
 
   render() {
@@ -87,7 +89,6 @@ class PicturesWall extends React.Component {
       previewTitle,
       name,
     } = this.state;
-    const { value } = this.props;
 
     const uploadButton = (
       <div>
@@ -96,40 +97,49 @@ class PicturesWall extends React.Component {
       </div>
     );
 
-    const nameFile = value || name;
     return (
-      <>
-        <Input value={nameFile} hidden />
-        {/* {nameFile !== "" ? (
-          <img
-            alt="media"
-            style={{ height: 250, margin: 20 }}
-            src={BASE_URL + "/downloadFile/" + nameFile}
-          />
-        ) : ( */}
-        <>
-          <Upload
-            action={BASE_URL + "/uploadFile"}
-            listType="picture-card"
-            fileList={fileList}
-            beforeUpload={beforeUpload}
-            onPreview={this.handlePreview}
-            onChange={this.handleChange}
-            itemRender={(originNode, file, fileList) => originNode}
-          >
-            {fileList.length >= 1 ? null : uploadButton}
-          </Upload>
-          <Modal
-            visible={previewVisible}
-            title={previewTitle}
-            footer={null}
-            onCancel={this.handleCancel}
-          >
-            <img alt="preview" style={{ width: "100%" }} src={previewImage} />
-          </Modal>
-        </>
-        {/* )} */}
-      </>
+      <div key={this.props.value}>
+        {fileList.length === 0 && name !== "" ? (
+          <div>
+            <div>
+              <Image
+                alt="media"
+                preview={false}
+                style={{ margin: 20 }}
+                src={resoleImageURI(name)}
+              />
+            </div>
+            <div>
+              <Button type="primary" danger onClick={() => this.removeImage()}>
+                Remove Image
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Upload
+              action={BASE_URL + "/uploadFile"}
+              listType="picture-card"
+              fileList={fileList}
+              beforeUpload={beforeUpload}
+              onPreview={this.handlePreview}
+              onChange={this.handleChange}
+              onRemove={this.handleRemove}
+              itemRender={(originNode, file, fileList) => originNode}
+            >
+              {fileList.length >= 1 ? null : uploadButton}
+            </Upload>
+            <Modal
+              visible={previewVisible}
+              title={previewTitle}
+              footer={null}
+              onCancel={this.handleCancel}
+            >
+              <img alt="preview" style={{ width: "100%" }} src={previewImage} />
+            </Modal>
+          </>
+        )}
+      </div>
     );
   }
 }

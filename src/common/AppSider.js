@@ -1,4 +1,8 @@
-import { EditOutlined, FundProjectionScreenOutlined } from "@ant-design/icons";
+import {
+  BarChartOutlined,
+  EditOutlined,
+  FundProjectionScreenOutlined,
+} from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -28,10 +32,9 @@ function AppSider(props) {
           <Menu.Item key="/questions" icon={<EditOutlined />} title="Questions">
             <Link to="/questions">Questions</Link>
           </Menu.Item>
-          {/* <SubMenu key="sub1" icon={<NotificationOutlined />} title="subnav 3">
-            <Menu.Item key="9">option9</Menu.Item>
-            <Menu.Item key="10">option10</Menu.Item>
-          </SubMenu> */}
+          <Menu.Item key="/reports" icon={<BarChartOutlined />} title="Reports">
+            <Link to="/reports">Reports</Link>
+          </Menu.Item>
         </Menu>
       </Sider>
       <Layout

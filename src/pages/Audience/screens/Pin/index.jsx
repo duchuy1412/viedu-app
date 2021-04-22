@@ -1,4 +1,4 @@
-import { Button, Row, Col } from "antd";
+import { Button, Row, Col, Typography } from "antd";
 import InputPIN from "pages/Audience/components/InputPIN";
 import React, { useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
@@ -6,9 +6,13 @@ import { checkExistByPIN } from "util/APIUtils";
 
 Pin.propTypes = {};
 
+const { Text } = Typography;
+
 function Pin(props) {
   const [pin, setPin] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [status, setStatus] = useState("");
 
   const history = useHistory();
   const match = useRouteMatch();
@@ -25,7 +29,8 @@ function Pin(props) {
           history.push(`${match.url}/name`, { rootPath: match.url, pin: pin });
         } else {
           setLoading(false);
-          alert("PIN is not correct. Try again!");
+          // alert("PIN is not correct. Try again!");
+          setStatus("PIN is not correct. Try again!");
         }
       })
       .catch((error) => {
@@ -36,6 +41,7 @@ function Pin(props) {
 
   const onChange = (value) => {
     setPin(value);
+    setStatus("");
   };
 
   return (
@@ -55,6 +61,9 @@ function Pin(props) {
               placeholder="Enter a PIN"
               onChange={onChange}
               maxLength={6}
+              allowClear
+              onPressEnter={hanldeJoin}
+              autoFocus
             />
             <Button
               style={{ width: "100%", marginTop: 10 }}
@@ -64,6 +73,7 @@ function Pin(props) {
             >
               Join
             </Button>
+            <Text type="danger">{status}</Text>
           </div>
         </Col>
         <Col xs={24} xl={8}></Col>
