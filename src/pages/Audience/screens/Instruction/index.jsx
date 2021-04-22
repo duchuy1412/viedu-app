@@ -62,7 +62,7 @@ function Instruction(props) {
     let receivedMessage = JSON.parse(payload.body);
 
     if (receivedMessage.type === "END") {
-      history.replace("/audience");
+      history.replace("/go");
     }
 
     if (receivedMessage.type === "SEND_QUESTION") {

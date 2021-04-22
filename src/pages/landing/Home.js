@@ -10,7 +10,16 @@ function Home(props) {
   return (
     <div>
       <Row>
-        <Col xs={24} xl={12} style={{ padding: 50 }}>
+        <Col
+          xs={24}
+          xl={12}
+          style={{
+            padding: 50,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
           <Image
             preview={false}
             src="https://www.ninjatropic.com/wp-content/uploads/2020/09/Explaining-Complex-Topics-eLearning-Video.jpg"

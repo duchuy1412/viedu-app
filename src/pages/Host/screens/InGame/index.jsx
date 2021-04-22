@@ -23,6 +23,10 @@ import { currentGame, updateGameStatus } from "pages/Host/hostSlice";
 
 import { resoleImageURI } from "util/ImageURI";
 import AnswerdCount from "../AnswerdCount";
+import useSound from "use-sound";
+
+import coundownSound from "assets/sounds/beeps.wav";
+import loopMusic from "assets/sounds/loopMusic.wav";
 
 const { Title } = Typography;
 
@@ -77,6 +81,13 @@ function InGame(props) {
   const handle = useFullScreenHandle();
 
   const { presentationId } = game;
+
+  const [playCountdown, exposedData] = useSound(coundownSound, {
+    sprite: {
+      fiveSeconds: [4000, 6000],
+    },
+  });
+  const [playLoopMusic, { stop }] = useSound(loopMusic);
 
   // const rendered = useRef(1);
   // useEffect(() => {
@@ -164,17 +175,28 @@ function InGame(props) {
     }
   }, [presentation]);
 
+  const stopMusic = () => stop();
+
   useEffect(() => {
     question.index >= 0
       ? setTimeout(() => {
+          // music
+          playLoopMusic();
+
           // allow players to answer
           sendQuestion();
           // console.log(presentation);
           let count = question.data.seconds;
           const timeAnswer = setInterval(() => {
-            console.log(count);
+            // console.log(count);
+            if (count === 6) {
+              stopMusic();
+              playCountdown({ id: "fiveSeconds" });
+            }
+
             if (count === 0) {
-              console.log("Time up");
+              exposedData.stop();
+              // console.log("Time up");
               clearInterval(timeAnswer);
               //skip
               sendSkip();

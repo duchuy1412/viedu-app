@@ -80,7 +80,10 @@ const AppHeader = (props) => {
       </Menu.Item>,
     ];
   } else {
-    if (props.location.pathname.startsWith("/audience")) {
+    if (
+      props.location.pathname.startsWith("/audience") ||
+      props.location.pathname.startsWith("/go")
+    ) {
       menuItems = [];
     } else {
       menuItems = [

@@ -1,4 +1,4 @@
-import { Button, message, Tooltip } from "antd";
+import { Button, message, Space, Tooltip } from "antd";
 import React, { useEffect, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import SockJS from "sockjs-client";
@@ -8,13 +8,30 @@ import { useSelector, useDispatch } from "react-redux";
 import { currentGame } from "./../../hostSlice";
 import { updateGame } from "util/APIUtils";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
-import { FullscreenExitOutlined, FullscreenOutlined } from "@ant-design/icons";
+import {
+  FullscreenExitOutlined,
+  FullscreenOutlined,
+  SoundOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import styled from "styled-components";
+import { getAvatarColor } from "util/Colors";
+import useSound from "use-sound";
+
+import bgfx from "assets/sounds/BeLikeAChild.mp3";
 
 const ToolBar = styled.div`
   display: flex;
   flex-direction: row-reverse;
   padding: 10px;
+`;
+
+const ColorBox = styled.div`
+  font-size: 1.5em;
+  background: ${(props) => props.color || "dodgerblue"};
+  box-shadow: dodgerblue 0px 8px 24px;
+  padding: 5px;
+  border-radius: 5px;
 `;
 
 Lobby.propTypes = {};
@@ -38,6 +55,10 @@ function Lobby(props) {
   const handle = useFullScreenHandle();
 
   const [playersJoined, setPlayersJoined] = useState([]);
+
+  const [play, { sound, stop, isPlaying }] = useSound(bgfx, {
+    loop: true,
+  });
 
   var stompClient = null;
 
@@ -115,6 +136,16 @@ function Lobby(props) {
     };
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      play(); // play music
+    }, 1000);
+
+    return () => {
+      stop(); // stop music
+    };
+  }, [play]);
+
   return (
     <div style={{ minHeight: "100vh" }}>
       <FullScreen handle={handle}>
@@ -128,18 +159,31 @@ function Lobby(props) {
           }}
         >
           <ToolBar>
-            {handle.active ? (
-              <Tooltip placement="bottomRight" title="Exit">
+            <Space>
+              <Tooltip placement="bottomRight" title="Music">
                 <Button
-                  onClick={handle.exit}
-                  icon={<FullscreenExitOutlined />}
+                  type={isPlaying ? "primary" : "default"}
+                  onClick={isPlaying ? () => stop() : play}
+                  icon={<SoundOutlined />}
                 />
               </Tooltip>
-            ) : (
-              <Tooltip placement="bottomRight" title="Fullscreen">
-                <Button onClick={handle.enter} icon={<FullscreenOutlined />} />
-              </Tooltip>
-            )}
+
+              {handle.active ? (
+                <Tooltip placement="bottomRight" title="Exit">
+                  <Button
+                    onClick={handle.exit}
+                    icon={<FullscreenExitOutlined />}
+                  />
+                </Tooltip>
+              ) : (
+                <Tooltip placement="bottomRight" title="Fullscreen">
+                  <Button
+                    onClick={handle.enter}
+                    icon={<FullscreenOutlined />}
+                  />
+                </Tooltip>
+              )}
+            </Space>
           </ToolBar>
           <div
             style={{
@@ -160,15 +204,19 @@ function Lobby(props) {
               alignItems: "center",
             }}
           >
-            <span>
-              Join at <b>viedu.live/audience</b> with PIN: <h1>{game.pin}</h1>
-            </span>
-            <div>
-              Number of players: <h1>{playersJoined.length}</h1>
-            </div>
+            <ColorBox>
+              Join at <b>www.viedu.live/go</b> with PIN: <h1>{game.pin}</h1>
+            </ColorBox>
+            <ColorBox>
+              <UserOutlined />
+              <span style={{ margin: 5, fontWeight: "bold" }}>
+                {playersJoined.length}
+              </span>
+            </ColorBox>
           </div>
           <div
             style={{
+              margin: 30,
               display: "flex",
               flexDirection: "row",
               padding: 10,
@@ -187,14 +235,51 @@ function Lobby(props) {
 function BoardName(props) {
   const { list } = props;
   return (
-    <div>
-      {list
-        ? list.map((player, index) => (
-            <span key={index}>
-              <h3>{player.nickname} </h3>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "column",
+      }}
+    >
+      {list ? (
+        list.length > 0 ? (
+          list.reverse().map((player, index) => (
+            <span style={{ fontSize: 20 }} key={index}>
+              <h3
+                style={{
+                  paddingLeft: 8,
+                  paddingRight: 8,
+                  borderRadius: 8,
+                  color: "white",
+                  background: getAvatarColor(player.nickname),
+                  opacity: 0.3,
+                  width: "fit-content",
+                }}
+              >
+                {player.nickname}
+              </h3>
             </span>
           ))
-        : null}
+        ) : (
+          <span style={{ fontSize: 20 }}>
+            <h3
+              style={{
+                paddingLeft: 8,
+                paddingRight: 8,
+                borderRadius: 8,
+                color: "white",
+                background: "grey",
+                opacity: 0.3,
+                width: "fit-content",
+              }}
+            >
+              Waiting for players...
+            </h3>
+          </span>
+        )
+      ) : null}
     </div>
   );
 }
