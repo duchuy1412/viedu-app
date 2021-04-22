@@ -63,6 +63,7 @@ function Pin(props) {
               maxLength={6}
               allowClear
               onPressEnter={hanldeJoin}
+              autoFocus
             />
             <Button
               style={{ width: "100%", marginTop: 10 }}

@@ -26,6 +26,7 @@ const Presentations = React.lazy(() =>
   import("pages/presentation/Presentations")
 );
 const Questions = React.lazy(() => import("pages/question/Questions"));
+const Report = React.lazy(() => import("pages/report/index"));
 
 const Login = React.lazy(() => import("pages/user/login/Login"));
 const Signup = React.lazy(() => import("pages/user/signup/Signup"));
@@ -161,6 +162,11 @@ const App = (props) => {
                 <Route
                   path="/questions"
                   component={Questions}
+                  handleLogout={handleLogout}
+                />
+                <Route
+                  path="/reports"
+                  component={Report}
                   handleLogout={handleLogout}
                 />
                 <Route path="/play" component={Host} />

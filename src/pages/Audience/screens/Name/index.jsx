@@ -87,6 +87,7 @@ function Name(props) {
               maxLength={15}
               onChange={onChange}
               onPressEnter={hanldeOk}
+              autoFocus
             />
             <Button
               style={{ width: "100%", marginTop: 10 }}
