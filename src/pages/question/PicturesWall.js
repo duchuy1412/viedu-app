@@ -118,7 +118,7 @@ class PicturesWall extends React.Component {
         ) : (
           <>
             <Upload
-              action={BASE_URL + "/uploadFile"}
+              action={BASE_URL + "/upload"}
               listType="picture-card"
               fileList={fileList}
               beforeUpload={beforeUpload}
