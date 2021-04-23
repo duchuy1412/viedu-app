@@ -19,11 +19,11 @@ function beforeUpload(file) {
   if (!isJpgOrPng) {
     message.error("You can only upload JPG/PNG file!");
   }
-  const isLt5M = file.size / 1024 / 1024 < 5;
-  if (!isLt5M) {
-    message.error("Image must smaller than 5MB!");
+  const isLt4M = file.size / 1024 / 1024 < 4;
+  if (!isLt4M) {
+    message.error("Image must smaller than 4MB!");
   }
-  return isJpgOrPng && isLt5M;
+  return isJpgOrPng && isLt4M;
 }
 
 class PicturesWall extends React.Component {
@@ -53,12 +53,15 @@ class PicturesWall extends React.Component {
   handleChange = (stateChange) => {
     console.log(stateChange);
     const { fileList, file } = stateChange;
-    this.setState({
-      fileList,
-      file,
-      name: fileList.length >= 1 ? fileList[0].name : "",
-    });
 
+    if (fileList.length >= 1) {
+      if (fileList[0].xhr)
+        this.setState({
+          fileList,
+          file,
+          name: fileList[0].xhr.status === 200 ? fileList[0].xhr.response : "",
+        });
+    }
     this.props.onChange?.(this.state.name);
   };
 
@@ -99,7 +102,7 @@ class PicturesWall extends React.Component {
 
     return (
       <div key={this.props.value}>
-        {fileList.length === 0 && name !== "" ? (
+        {fileList.length === 0 && name !== "" && name !== undefined ? (
           <div>
             <div>
               <Image
