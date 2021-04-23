@@ -18,6 +18,9 @@ function PresentationList(props) {
   });
   const [loading, setLoading] = useState(false);
 
+  const [operationloading, setOperationLoading] = useState(false);
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+
   const columns = [
     {
       title: "Title",
@@ -128,15 +131,54 @@ function PresentationList(props) {
     setPagination(pagination);
   };
 
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectedRowKeys(selectedRowKeys);
+    },
+    getCheckboxProps: (record) => ({
+      name: record.id,
+    }),
+  };
+
+  const hasSelected = selectedRowKeys.length > 0;
+
+  const deleteSelectedRows = () => {
+    setOperationLoading(true);
+    // ajax request after empty completing
+    setTimeout(() => {
+      setSelectedRowKeys([]);
+      setOperationLoading(false);
+    }, 1000);
+  };
+
   return (
-    <Table
-      rowKey="id"
-      columns={columns}
-      dataSource={data}
-      loading={loading}
-      pagination={pagination}
-      onChange={handleTableChange}
-    />
+    <div>
+      {hasSelected ? (
+        <div style={{ marginBottom: 16 }}>
+          <Button
+            type="primary"
+            danger
+            onClick={() => deleteSelectedRows()}
+            loading={operationloading}
+          >
+            Delete
+          </Button>
+          <span style={{ marginLeft: 8 }}>
+            {`Selected ${selectedRowKeys.length} items`}
+          </span>
+        </div>
+      ) : null}
+      <Table
+        rowSelection={{ type: "checkbox", ...rowSelection }}
+        rowKey="id"
+        columns={columns}
+        dataSource={data}
+        loading={loading}
+        pagination={pagination}
+        onChange={handleTableChange}
+      />
+    </div>
   );
 }
 

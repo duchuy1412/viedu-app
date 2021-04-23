@@ -25,7 +25,7 @@ function Home(props) {
             src="https://www.ninjatropic.com/wp-content/uploads/2020/09/Explaining-Complex-Topics-eLearning-Video.jpg"
           />
         </Col>
-        <Col xs={24} xl={12}>
+        <Col xs={24} xl={12} style={{ padding: 20 }}>
           <Signup />
         </Col>
       </Row>

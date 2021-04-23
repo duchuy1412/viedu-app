@@ -104,6 +104,13 @@ export function deletePresentation(presentationId) {
   });
 }
 
+export function deletePresentations(presentationIds) {
+  return request({
+    url: API_BASE_URL + "/presentations/" + presentationIds,
+    method: "DELETE",
+  });
+}
+
 export function getAllQuestions(page, size) {
   page = page || 0;
   size = size || PRESENTATIONS_LIST_SIZE;
@@ -151,11 +158,32 @@ export function deleteQuestion(questionId) {
   });
 }
 
+export function deleteQuestions(questionIds) {
+  return request({
+    url: API_BASE_URL + "/questions/" + questionIds,
+    method: "DELETE",
+  });
+}
+
 export function createGame(gameData) {
   return request({
     url: API_BASE_URL + "/game",
     method: "POST",
     body: JSON.stringify(gameData),
+  });
+}
+
+export function getAllGames(page, size) {
+  return request({
+    url: API_BASE_URL + "/games?page=" + page + "&size=" + size,
+    method: "GET",
+  });
+}
+
+export function countGames() {
+  return request({
+    url: API_BASE_URL + "/games/count",
+    method: "GET",
   });
 }
 
@@ -171,6 +199,20 @@ export function updateGame(gameData) {
     url: API_BASE_URL + "/game",
     method: "PUT",
     body: JSON.stringify(gameData),
+  });
+}
+
+export function deleteGame(gameId) {
+  return request({
+    url: API_BASE_URL + "/game/" + gameId,
+    method: "DELETE",
+  });
+}
+
+export function deleteGames(gameIds) {
+  return request({
+    url: API_BASE_URL + "/games/" + gameIds,
+    method: "DELETE",
   });
 }
 
