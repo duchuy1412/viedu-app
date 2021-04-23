@@ -99,10 +99,6 @@ const EditPresentation = () => {
       icon: <ExclamationCircleOutlined />,
       content: "You cannot undo once a question is deleted",
       onOk() {
-        deleteFromPresentation(questionId, presentationId).then(() => {
-          console.log("Deleted question in presentation!");
-        });
-
         let indexDelete; // indexDelete = index + 1 to avoid indexDelete equals 0 cause error
         questions.list.find((e, index) =>
           e.id === questions.activeId
@@ -124,17 +120,20 @@ const EditPresentation = () => {
         let newList = questions.list;
         newList.splice(indexDelete, 1);
 
-        console.log(nextActiveId);
-        console.log(newList);
-
         // dispatch(currentSlide(questions.list[indexPrev - 1]));
         setQuestions({
           list: newList,
           activeId: nextActiveId,
         });
+
+        deleteFromPresentation(questionId, presentationId)
+          .then((response) => {
+            message.success("Deleted!");
+          })
+          .catch((error) => message.error("Error!"));
       },
       onCancel() {
-        console.log("Cancel");
+        // console.log("Cancel");
       },
     });
   }
@@ -237,11 +236,12 @@ const EditPresentation = () => {
     // console.log("click", e.key);
     switch (e.key) {
       case "1":
-        console.log("Choose from bank");
+        // console.log("Choose from bank");
         questionBankDrawer.current.showDrawer();
         break;
       case "2":
-        console.log("clicked 2");
+        // console.log("clicked 2");
+        alert("Coming Soon...");
         break;
       default:
         break;
