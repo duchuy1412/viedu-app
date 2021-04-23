@@ -102,6 +102,7 @@ function SlideDetail(props) {
         score: content.score,
         seconds: content.seconds,
         questionType: content.questionType,
+        multiSelect: content.multiSelect,
         image: content.image ? content.image : "",
       });
     };
@@ -339,7 +340,6 @@ function SlideDetail(props) {
               >
                 <Select
                   defaultActiveFirstOption
-                  placeholder=""
                   menuItemSelectedIcon={<CheckOutlined />}
                 >
                   <Option value={false}>Single select</Option>

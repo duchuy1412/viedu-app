@@ -205,7 +205,7 @@ function Lobby(props) {
             }}
           >
             <ColorBox>
-              Join at <b>www.viedu.live/go</b> with PIN: <h1>{game.pin}</h1>
+              Join at <b>www.viedu.tech/go</b> with PIN: <h1>{game.pin}</h1>
             </ColorBox>
             <ColorBox>
               <UserOutlined />

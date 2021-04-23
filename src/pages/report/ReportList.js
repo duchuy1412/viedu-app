@@ -1,15 +1,19 @@
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Button, Space, Table, Modal, notification } from "antd";
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { Button, Space, Table, Modal, notification, Tag } from "antd";
 import {
-  countQuestions,
-  getAllQuestions,
-  deleteQuestion,
-} from "../../util/APIUtils";
+  countGames,
+  getAllGames,
+  deleteGame,
+  deleteGames,
+} from "util/APIUtils";
 
 var moment = require("moment");
 
-function QuestionList(props) {
+ReportList.propTypes = {};
+
+function ReportList(props) {
   const [data, setData] = useState([]);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -27,15 +31,34 @@ function QuestionList(props) {
       dataIndex: "title",
       sorter: {
         compare: (a, b) => a.title.localeCompare(b.title),
-        multiple: 1,
+        multiple: 3,
+      },
+    },
+    {
+      title: "Status",
+      dataIndex: "gameStatus",
+      render: (status) => {
+        switch (status) {
+          case "CREATED":
+            return <Tag color="blue">CREATED</Tag>;
+
+          case "GOING_ON":
+            return <Tag color="gold">GOING ON</Tag>;
+
+          case "FINISHED":
+            return <Tag color="green">FINISHED</Tag>;
+
+          default:
+            break;
+        }
+        return "";
       },
     },
     {
       title: "Created",
       dataIndex: "createdAt",
       sorter: {
-        compare: (a, b) =>
-          moment(b.createdAt).diff(moment(a.createdAt), "minutes", true),
+        compare: (a, b) => a.createdAt - b.createdAt,
         multiple: 2,
       },
       render: (date) => moment(date).fromNow(),
@@ -44,20 +67,32 @@ function QuestionList(props) {
       title: "Modified",
       dataIndex: "modifiedAt",
       sorter: {
-        compare: (a, b) =>
-          moment(b.modifiedAt).diff(moment(a.modifiedAt), "minutes", true),
-        multiple: 3,
+        compare: (a, b) => a.modifiedAt - b.modifiedAt,
+        multiple: 1,
       },
       render: (date) => moment(date).fromNow(),
+    },
+    {
+      title: "Game mode",
+      dataIndex: "gameType",
+    },
+    {
+      title: "No. of players",
+      dataIndex: "numberOfPlayers",
+      sorter: {
+        compare: (a, b) => a.numberOfPlayers - b.numberOfPlayers,
+        multiple: 4,
+      },
     },
     {
       title: "Action",
       key: "action",
       render: (text, record) => (
         <Space size="middle">
-          <Button type="primary" href={`/questions/${record.id}/edit`}>
-            Edit
+          <Button type="primary" href={`/play?quizId=${record.presentationId}`}>
+            Play again
           </Button>
+          <Button href={`/reports/${record.id}`}>Open</Button>
           <Button danger onClick={() => confirm(record.id)}>
             Delete
           </Button>
@@ -66,23 +101,21 @@ function QuestionList(props) {
     },
   ];
 
-  function confirm(questionId) {
+  function confirm(gameId) {
     Modal.confirm({
-      title: "Delete question",
+      title: "Delete game",
       icon: <ExclamationCircleOutlined />,
       content:
-        "Are you sure you want to delete this question? This action can’t be undone.",
+        "Are you sure you want to delete this game? This action can’t be undone.",
       okText: "Delete",
       cancelText: "Cancel",
       onOk() {
-        // console.log("OK");
-        deleteQuestion(questionId)
+        deleteGame(gameId)
           .then((response) => {
             notification.success({
               message: "Deleted",
-              description: "Deleted question",
+              description: "Deleted game",
             });
-            //for refresh
             setPagination({ ...pagination, total: pagination.total - 1 });
           })
           .catch((error) =>
@@ -99,26 +132,29 @@ function QuestionList(props) {
   }
 
   useEffect(() => {
+    let mounted = true;
+
     setLoading(true);
-    countQuestions().then((response) =>
-      setPagination((p) => ({ ...p, total: response }))
-    );
+    countGames().then((response) => {
+      if (mounted) setPagination((p) => ({ ...p, total: response }));
+    });
     setLoading(false);
+
+    return () => (mounted = false);
   }, []);
 
   useEffect(() => {
+    let mounted = true;
     setLoading(true);
 
-    getAllQuestions(pagination.current, pagination.pageSize).then(
-      (response) => {
+    getAllGames(pagination.current, pagination.pageSize).then((response) => {
+      if (mounted) {
         setData(response);
         setLoading(false);
       }
-    );
+    });
 
-    return () => {
-      setData([]);
-    };
+    return () => (mounted = false);
   }, [pagination]);
 
   const handleTableChange = (pagination, filters, sorter) => {
@@ -176,4 +212,4 @@ function QuestionList(props) {
   );
 }
 
-export default QuestionList;
+export default ReportList;
