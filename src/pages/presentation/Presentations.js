@@ -11,11 +11,13 @@ import {
 } from "antd";
 import React from "react";
 import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom";
-import AppSider from "../../common/AppSider";
-import NotFound from "../../common/NotFound";
-import { createPresentation } from "../../util/APIUtils";
-import EditPresentation from "./EditPresentation";
+
+import AppSider from "common/AppSider";
+import { createPresentation } from "util/APIUtils";
 import PresentationList from "./PresentationList";
+
+const EditPresentation = React.lazy(() => import("./EditPresentation"));
+const NotFound = React.lazy(() => import("common/NotFound"));
 
 const { TextArea } = Input;
 

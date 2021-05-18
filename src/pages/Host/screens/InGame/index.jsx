@@ -337,7 +337,7 @@ function InGame(props) {
               {scoreBoard.display === true ? (
                 <ScoreBoard list={scoreBoard.list}></ScoreBoard>
               ) : (
-                <div>
+                <div style={{ background: "lightblue" }}>
                   {question.data.id && (
                     <div>
                       <CenterDiv>

@@ -1,10 +1,11 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Button, Space, Table, Modal, notification } from "antd";
+import { Button, Space, Table, Modal, notification, message } from "antd";
 import React, { useEffect, useState } from "react";
 import {
   countPresentations,
   getAllPresentations,
   deletePresentation,
+  deletePresentations,
 } from "../../util/APIUtils";
 
 var moment = require("moment");
@@ -145,11 +146,19 @@ function PresentationList(props) {
 
   const deleteSelectedRows = () => {
     setOperationLoading(true);
-    // ajax request after empty completing
-    setTimeout(() => {
-      setSelectedRowKeys([]);
-      setOperationLoading(false);
-    }, 1000);
+
+    deletePresentations(selectedRowKeys)
+      .then((reponse) => {
+        message.success("Deleted!");
+        setPagination({
+          ...pagination,
+          total: pagination.total - selectedRowKeys.length,
+        });
+        setSelectedRowKeys([]);
+      })
+      .catch((error) => message.error("Error"));
+
+    setOperationLoading(false);
   };
 
   return (

@@ -10,19 +10,15 @@ import {
   PageHeader,
 } from "antd";
 import React from "react";
-import {
-  Route,
-  Switch,
-  useHistory,
-  useRouteMatch,
-  withRouter,
-} from "react-router-dom";
+import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom";
+
 import AppSider from "../../common/AppSider";
-import NotFound from "../../common/NotFound";
 import { createQuestion } from "../../util/APIUtils";
-import EditQuestion from "./EditQuestion";
 import QuestionList from "./QuestionList";
 import PrivateRoute from "./../../common/PrivateRoute";
+
+const EditQuestion = React.lazy(() => import("./EditQuestion"));
+const NotFound = React.lazy(() => import("common/NotFound"));
 
 const { Option } = Select;
 

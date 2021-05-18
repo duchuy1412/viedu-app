@@ -4,6 +4,8 @@ import { Row, Col, Image } from "antd";
 import Signup from "pages/user/signup/Signup";
 import "./Home.css";
 
+import imageSample from "assets/images/background.jpg";
+
 Home.propTypes = {};
 
 function Home(props) {
@@ -20,10 +22,7 @@ function Home(props) {
             alignItems: "center",
           }}
         >
-          <Image
-            preview={false}
-            src="https://www.ninjatropic.com/wp-content/uploads/2020/09/Explaining-Complex-Topics-eLearning-Video.jpg"
-          />
+          <Image preview={false} src={imageSample} />
         </Col>
         <Col xs={24} xl={12} style={{ padding: 20 }}>
           <Signup />
