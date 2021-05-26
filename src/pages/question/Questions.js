@@ -8,6 +8,7 @@ import {
   Select,
   Space,
   PageHeader,
+  Input,
 } from "antd";
 import React from "react";
 import { Route, Switch, useHistory, useRouteMatch } from "react-router-dom";
@@ -21,6 +22,7 @@ const EditQuestion = React.lazy(() => import("./EditQuestion"));
 const NotFound = React.lazy(() => import("common/NotFound"));
 
 const { Option } = Select;
+const { Search } = Input;
 
 const routes = [
   {
@@ -112,6 +114,10 @@ const Questions = (props) => {
     }
   }
 
+  const onSearch = () => {
+    alert("searching...");
+  };
+
   return (
     <Switch>
       <Route
@@ -124,7 +130,12 @@ const Questions = (props) => {
               breadcrumb={{ routes }}
               subTitle=""
             />
-            <Row>
+            <Row
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
               <Col span={6}>
                 <Space>
                   <Button type="primary" onClick={showModal}>
@@ -163,7 +174,15 @@ const Questions = (props) => {
                   </Modal>
                 </Space>
               </Col>
-              <Col span={18}></Col>
+              <Col span={6}>
+                <Search
+                  placeholder="Search"
+                  allowClear
+                  enterButton
+                  size="middle"
+                  onSearch={onSearch}
+                />
+              </Col>
             </Row>
             <br />
             <QuestionList />

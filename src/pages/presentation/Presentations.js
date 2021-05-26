@@ -19,7 +19,7 @@ import PresentationList from "./PresentationList";
 const EditPresentation = React.lazy(() => import("./EditPresentation"));
 const NotFound = React.lazy(() => import("common/NotFound"));
 
-const { TextArea } = Input;
+const { TextArea, Search } = Input;
 
 const routes = [
   {
@@ -79,6 +79,10 @@ const Presentations = (props) => {
     form.resetFields();
   };
 
+  const onSearch = () => {
+    alert("searching...");
+  };
+
   return (
     <Switch>
       <Route
@@ -91,38 +95,51 @@ const Presentations = (props) => {
               breadcrumb={{ routes }}
               subTitle=""
             />
-            <Row>
+            <Row
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+              }}
+            >
               <Col span={6}>
                 <Space>
                   <Button type="primary" onClick={showModal}>
                     New Presentation
                   </Button>
+
+                  <Modal
+                    title="New presentation"
+                    visible={visible}
+                    onOk={form.submit}
+                    confirmLoading={confirmLoading}
+                    onCancel={handleCancel}
+                    okText="Create"
+                  >
+                    <Form form={form} onFinish={handleSubmit}>
+                      <Form.Item name="title" rules={[{ required: true }]}>
+                        <TextArea
+                          showCount
+                          allowClear
+                          autoSize={{ maxRows: 1 }}
+                          maxLength={100}
+                          placeholder="Presentation name"
+                          onPressEnter={handleSubmit}
+                        />
+                      </Form.Item>
+                    </Form>
+                  </Modal>
                 </Space>
               </Col>
-              <Col span={18}></Col>
+              <Col span={6}>
+                <Search
+                  placeholder="Search"
+                  allowClear
+                  enterButton
+                  size="middle"
+                  onSearch={onSearch}
+                />
+              </Col>
             </Row>
-            <br />
-            <Modal
-              title="New presentation"
-              visible={visible}
-              onOk={form.submit}
-              confirmLoading={confirmLoading}
-              onCancel={handleCancel}
-              okText="Create"
-            >
-              <Form form={form} onFinish={handleSubmit}>
-                <Form.Item name="title" rules={[{ required: true }]}>
-                  <TextArea
-                    showCount
-                    allowClear
-                    autoSize={{ maxRows: 1 }}
-                    maxLength={100}
-                    placeholder="Presentation name"
-                    onPressEnter={handleSubmit}
-                  />
-                </Form.Item>
-              </Form>
-            </Modal>
             <br />
             <PresentationList />
           </AppSider>
