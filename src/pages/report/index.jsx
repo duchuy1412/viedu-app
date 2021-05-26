@@ -1,5 +1,5 @@
 import React from "react";
-import { PageHeader } from "antd";
+import { Col, Input, PageHeader, Row } from "antd";
 import AppSider from "common/AppSider";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 
@@ -8,6 +8,8 @@ const ReportDetail = React.lazy(() => import("pages/report/ReportDetail"));
 const NotFound = React.lazy(() => import("common/NotFound"));
 
 Report.propTypes = {};
+
+const { Search } = Input;
 
 const routes = [
   {
@@ -23,6 +25,10 @@ const routes = [
 function Report(props) {
   let match = useRouteMatch();
 
+  const onSearch = () => {
+    alert("searching...");
+  };
+
   return (
     <Switch>
       <Route
@@ -35,6 +41,23 @@ function Report(props) {
               breadcrumb={{ routes }}
               subTitle=""
             />
+            <Row
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Col span={6}>
+                <Search
+                  placeholder="Search"
+                  allowClear
+                  enterButton
+                  size="middle"
+                  onSearch={onSearch}
+                />
+              </Col>
+            </Row>
+            <br />
             <ReportList />
           </AppSider>
         )}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Button, Space, Table, Modal, notification, Tag } from "antd";
+import { Button, Space, Table, Modal, notification, Tag, message } from "antd";
 import {
   countGames,
   getAllGames,
@@ -175,11 +175,19 @@ function ReportList(props) {
 
   const deleteSelectedRows = () => {
     setOperationLoading(true);
-    // ajax request after empty completing
-    setTimeout(() => {
-      setSelectedRowKeys([]);
-      setOperationLoading(false);
-    }, 1000);
+
+    deleteGames(selectedRowKeys)
+      .then((reponse) => {
+        message.success("Deleted!");
+        setPagination({
+          ...pagination,
+          total: pagination.total - selectedRowKeys.length,
+        });
+        setSelectedRowKeys([]);
+      })
+      .catch((error) => message.error("Error"));
+
+    setOperationLoading(false);
   };
 
   return (

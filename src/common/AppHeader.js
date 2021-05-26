@@ -22,7 +22,7 @@ const AppHeader = (props) => {
     <Menu>
       <Menu.Item>
         <a href="/user">
-          <SettingOutlined /> Cài đặt
+          <SettingOutlined /> Settings
         </a>
       </Menu.Item>
       <Menu.Item danger onClick={props.onLogout}>

@@ -1,3 +1,11 @@
+import {
+  BankOutlined,
+  BlockOutlined,
+  DeleteOutlined,
+  DownOutlined,
+  ExclamationCircleOutlined,
+  FileExcelOutlined,
+} from "@ant-design/icons";
 import React, { useState, useEffect, useRef } from "react";
 import {
   Layout,
@@ -14,27 +22,20 @@ import {
 } from "antd";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import Animate from "react-smooth";
 
 import {
   getPresentation,
   addToPresentation,
   deleteFromPresentation,
-} from "./../../util/APIUtils";
+} from "util/APIUtils";
 
 import SingleSlide from "./SingleSlide";
 import { updateSlide } from "./slideSlice";
 import SlideDetail from "./SlideDetail";
 import "./EditPresentation.css";
-import { useSelector } from "react-redux";
-import {
-  BankOutlined,
-  BlockOutlined,
-  DeleteOutlined,
-  DownOutlined,
-  ExclamationCircleOutlined,
-  FileExcelOutlined,
-} from "@ant-design/icons";
+
 import QuestionBankDrawer from "./QuestionBankDrawer";
 
 const { Content, Sider } = Layout;
@@ -445,21 +446,24 @@ const EditPresentation = () => {
         </Form>
         <p>{questionType.description}</p>
       </Modal>
-      <Content
-        className="site-layout-background"
-        style={{
-          padding: 24,
-          margin: 0,
-          background: "whitesmoke",
-        }}
-      >
-        {questions.list.length > 0 ? (
-          <SlideDetail
-            content={questions.list.find((e) => e.id === questions.activeId)}
-            deleteSlide={deleteSlide}
-          />
-        ) : null}
-      </Content>
+
+      <Animate to="1" from="0" attributeName="opacity">
+        <Content
+          className="site-layout-background"
+          style={{
+            padding: 24,
+            margin: 0,
+            background: "whitesmoke",
+          }}
+        >
+          {questions.list.length > 0 ? (
+            <SlideDetail
+              content={questions.list.find((e) => e.id === questions.activeId)}
+              deleteSlide={deleteSlide}
+            />
+          ) : null}
+        </Content>
+      </Animate>
     </Layout>
   );
 };
