@@ -5,6 +5,7 @@ export const BASE_URL = process.env.REACT_APP_BASE_URL;
 export const WS_BASE_URL = process.env.REACT_APP_WS_BASE_URL;
 
 export const ACCESS_TOKEN = "accessToken";
+export const REFRESH_TOKEN = "refreshToken";
 
 export const PRESENTATIONS_LIST_SIZE = 10;
 export const MAX_CHOICES = 4;

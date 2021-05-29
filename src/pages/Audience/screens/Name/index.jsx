@@ -45,6 +45,8 @@ function Name(props) {
         content: "",
       })
     );
+
+    localStorage.setItem("nickname", name);
   }
 
   function onError(error) {
@@ -54,11 +56,11 @@ function Name(props) {
   }
 
   function onMessageReceived(payload) {
-    // console.log(JSON.parse(payload.body));
+    let msgReceived = JSON.parse(payload.body);
 
     history.push(`${state.rootPath}/lobby`, {
       pin: state.pin,
-      nickname: name,
+      nickname: msgReceived.sender,
     });
   }
 

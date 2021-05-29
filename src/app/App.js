@@ -8,8 +8,8 @@ import {
   withRouter,
 } from "react-router-dom";
 import AppHeader from "../common/AppHeader";
-import { ACCESS_TOKEN } from "../constants";
-import { getCurrentUser } from "../util/APIUtils";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
+import { getCurrentUser, refreshToken } from "../util/APIUtils";
 import LoadingIndicator from "./../common/LoadingIndicator";
 import NotFound from "./../common/NotFound";
 import PrivateRoute from "./../common/PrivateRoute";
@@ -66,6 +66,7 @@ const App = (props) => {
     history.push("/");
 
     localStorage.removeItem(ACCESS_TOKEN);
+    localStorage.removeItem(REFRESH_TOKEN);
 
     setCurrentUser(null);
     setIsAuthenticated(false);
@@ -89,6 +90,17 @@ const App = (props) => {
   useEffect(() => {
     loadCurrentUser();
   }, []);
+
+  // useEffect(() => {
+  //   if (!isAuthenticated )
+  //     refreshToken({
+  //       refreshToken: localStorage.getItem(REFRESH_TOKEN),
+  //     }).then((response) => {
+  //       localStorage.setItem(REFRESH_TOKEN, response.refreshToken);
+  //       localStorage.setItem(ACCESS_TOKEN, response.accessToken);
+  //       setIsAuthenticated(true);
+  //     }).catc;
+  // }, [isAuthenticated]);
 
   // if (isLoading) {
   //   return <LoadingIndicator />;
