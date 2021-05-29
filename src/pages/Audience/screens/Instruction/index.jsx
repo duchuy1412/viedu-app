@@ -319,7 +319,7 @@ function Instruction(props) {
           extra={<Title level={1}>{screen.info.currentPoint}</Title>}
         />
       ) : null}
-      <div
+      {/* <div
         style={{
           position: "fixed",
           bottom: 0,
@@ -334,13 +334,14 @@ function Instruction(props) {
             alignItems: "center",
             justifyContent: "space-between",
             color: "white",
+            fontWeight: "bold",
           }}
         ></div>
-        <div>{state.nickname}</div>
-        <div>
+        <span><b>{state.nickname}</b></span>
+        <span>
           {localStorage.getItem("point") ? localStorage.getItem("point") : "0"}
-        </div>
-      </div>
+        </span>
+      </div> */}
     </>
   );
 }

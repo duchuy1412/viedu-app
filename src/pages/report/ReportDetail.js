@@ -15,6 +15,8 @@ import {
   List,
   Table,
   Card,
+  Statistic,
+  Progress,
 } from "antd";
 import { useParams } from "react-router-dom";
 import { getGame } from "util/APIUtils";
@@ -23,6 +25,7 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   EllipsisOutlined,
+  LikeOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
 import "./style.css";
@@ -229,9 +232,7 @@ function ReportDetail(props) {
                   </Col>
                   <Col span={8}>
                     <Card>
-                      <p>Card content</p>
-                      <p>Card content</p>
-                      <p>Card content</p>
+                      <Progress type="circle" percent={75} />
                     </Card>
                   </Col>
                 </Row>
@@ -244,10 +245,14 @@ function ReportDetail(props) {
                 />
               </TabPane>
               <TabPane tab="Questions" key="3">
-                Content of Tab Pane 3
+                Diffrencult
               </TabPane>
               <TabPane tab="Feedback" key="4">
-                Content of Tab Pane 3
+                <Statistic
+                  title="Feedback"
+                  value={1128}
+                  prefix={<LikeOutlined />}
+                />
               </TabPane>
             </Tabs>
           </Card>
