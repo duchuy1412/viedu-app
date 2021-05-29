@@ -319,6 +319,29 @@ function Instruction(props) {
           extra={<Title level={1}>{screen.info.currentPoint}</Title>}
         />
       ) : null}
+      {/* <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          padding: 20,
+          width: "100%",
+          background: "#1890ff",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            color: "white",
+            fontWeight: "bold",
+          }}
+        ></div>
+        <span><b>{state.nickname}</b></span>
+        <span>
+          {localStorage.getItem("point") ? localStorage.getItem("point") : "0"}
+        </span>
+      </div> */}
     </>
   );
 }

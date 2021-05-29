@@ -337,7 +337,7 @@ function InGame(props) {
               {scoreBoard.display === true ? (
                 <ScoreBoard list={scoreBoard.list}></ScoreBoard>
               ) : (
-                <div style={{ background: "lightblue" }}>
+                <div>
                   {question.data.id && (
                     <div>
                       <CenterDiv>
@@ -371,80 +371,88 @@ function InGame(props) {
                             </CenterDiv>
                           </Col>
                         </Row>
-                        <Row>
-                          {question.data.answers &&
-                          (question.data.questionType ===
-                            QuestionType.QUESTION_CHOICE_ANSWER ||
-                            question.data.questionType ===
-                              QuestionType.QUESTION_TRUE_FALSE)
-                            ? question.data.answers.map((a, index) => (
-                                <Col key={index} span={12}>
-                                  <OptionBox
-                                    style={{
-                                      justifyContent: displayResult
-                                        ? "space-between"
-                                        : "flex-start",
-                                      backgroundColor:
-                                        answerOptions[index].color,
-                                      opacity: displayResult
-                                        ? !a.correct
-                                          ? 0.3
-                                          : 1
-                                        : 1,
-                                    }}
-                                  >
-                                    <span>
-                                      {answerOptions[index].icon}. {a.text}
-                                    </span>
-                                    {displayResult ? (
-                                      <span>
-                                        {a.correct ? (
-                                          <CheckOutlined />
-                                        ) : (
-                                          <CloseOutlined />
-                                        )}
-                                      </span>
-                                    ) : null}
-                                  </OptionBox>
-                                </Col>
-                              ))
-                            : null}
-                          {question.data.answers &&
-                          question.data.questionType ===
-                            QuestionType.QUESTION_INPUT_ANSWER ? (
-                            <>
-                              {!displayResult && (
-                                <Col span={24}>
-                                  <CenterDiv>
-                                    <Title level={4}>
-                                      Please input your answer in your device!
-                                    </Title>
-                                  </CenterDiv>
-                                </Col>
-                              )}
-                              {displayResult &&
-                                question.data.answers.map((a, index) => (
+                        <div
+                          style={{
+                            position: "fixed",
+                            bottom: 20,
+                            width: "100%",
+                          }}
+                        >
+                          <Row>
+                            {question.data.answers &&
+                            (question.data.questionType ===
+                              QuestionType.QUESTION_CHOICE_ANSWER ||
+                              question.data.questionType ===
+                                QuestionType.QUESTION_TRUE_FALSE)
+                              ? question.data.answers.map((a, index) => (
                                   <Col key={index} span={12}>
                                     <OptionBox
                                       style={{
-                                        justifyContent: "space-between",
+                                        justifyContent: displayResult
+                                          ? "space-between"
+                                          : "flex-start",
                                         backgroundColor:
                                           answerOptions[index].color,
+                                        opacity: displayResult
+                                          ? !a.correct
+                                            ? 0.3
+                                            : 1
+                                          : 1,
                                       }}
                                     >
                                       <span>
                                         {answerOptions[index].icon}. {a.text}
                                       </span>
-
-                                      <span>
-                                        <CheckOutlined />
-                                      </span>
+                                      {displayResult ? (
+                                        <span>
+                                          {a.correct ? (
+                                            <CheckOutlined />
+                                          ) : (
+                                            <CloseOutlined />
+                                          )}
+                                        </span>
+                                      ) : null}
                                     </OptionBox>
                                   </Col>
-                                ))}
-                            </>
-                          ) : null}
-                        </Row>
+                                ))
+                              : null}
+                            {question.data.answers &&
+                            question.data.questionType ===
+                              QuestionType.QUESTION_INPUT_ANSWER ? (
+                              <>
+                                {!displayResult && (
+                                  <Col span={24}>
+                                    <CenterDiv>
+                                      <Title level={4}>
+                                        Please input your answer in your device!
+                                      </Title>
+                                    </CenterDiv>
+                                  </Col>
+                                )}
+                                {displayResult &&
+                                  question.data.answers.map((a, index) => (
+                                    <Col key={index} span={12}>
+                                      <OptionBox
+                                        style={{
+                                          justifyContent: "space-between",
+                                          backgroundColor:
+                                            answerOptions[index].color,
+                                        }}
+                                      >
+                                        <span>
+                                          {answerOptions[index].icon}. {a.text}
+                                        </span>
+
+                                        <span>
+                                          <CheckOutlined />
+                                        </span>
+                                      </OptionBox>
+                                    </Col>
+                                  ))}
+                              </>
+                            ) : null}
+                          </Row>
+                        </div>
                       </Delayed>
                     </div>
                   )}

@@ -1,6 +1,16 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Button, Space, Table, Modal, notification, message } from "antd";
+import {
+  Button,
+  Space,
+  Table,
+  Modal,
+  notification,
+  message,
+  Image,
+} from "antd";
 import React, { useEffect, useState } from "react";
+import { resoleImageURI } from "util/ImageURI";
+import { getQuestionType } from "util/QuestionType";
 import {
   countQuestions,
   getAllQuestions,
@@ -29,6 +39,24 @@ function QuestionList(props) {
       sorter: {
         compare: (a, b) => a.title.localeCompare(b.title),
         multiple: 1,
+      },
+    },
+    {
+      title: "Image",
+      dataIndex: "image",
+      render: (text, record) => {
+        return text ? (
+          <Image alt="media" preview={false} src={resoleImageURI(text)} />
+        ) : (
+          "No image"
+        );
+      },
+    },
+    {
+      title: "Question type",
+      dataIndex: "questionType",
+      render: (text, record) => {
+        return getQuestionType(record);
       },
     },
     {

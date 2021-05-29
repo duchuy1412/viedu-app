@@ -20,6 +20,8 @@ import useSound from "use-sound";
 
 import bgfx from "assets/sounds/BeLikeAChild.mp3";
 
+var QRCode = require("qrcode.react");
+
 const ToolBar = styled.div`
   display: flex;
   flex-direction: row-reverse;
@@ -207,6 +209,8 @@ function Lobby(props) {
             <ColorBox>
               Join at <b>www.viedu.tech/go</b> with PIN: <h1>{game.pin}</h1>
             </ColorBox>
+
+            <QRCode value={"https://viedu.tech/go/pin/" + game.pin} />
             <ColorBox>
               <UserOutlined />
               <span style={{ margin: 5, fontWeight: "bold" }}>

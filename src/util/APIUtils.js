@@ -2,6 +2,7 @@ import {
   API_BASE_URL,
   ACCESS_TOKEN,
   PRESENTATIONS_LIST_SIZE,
+  REFRESH_TOKEN,
 } from "../constants";
 
 const request = (options) => {
@@ -231,6 +232,14 @@ export function login(loginRequest) {
   });
 }
 
+export function refreshToken(refreshTokenRequest) {
+  return request({
+    url: API_BASE_URL + "/auth/refreshtoken",
+    method: "POST",
+    body: JSON.stringify(refreshTokenRequest),
+  });
+}
+
 export function signup(signupRequest) {
   return request({
     url: API_BASE_URL + "/auth/signup",
@@ -290,23 +299,3 @@ export function updatePassword(password, oldpassword) {
     method: "POST",
   });
 }
-
-// export function getUserCreatedPolls(username, page, size) {
-//     page = page || 0;
-//     size = size || POLL_LIST_SIZE;
-
-//     return request({
-//         url: API_BASE_URL + "/users/" + username + "/polls?page=" + page + "&size=" + size,
-//         method: 'GET'
-//     });
-// }
-
-// export function getUserVotedPolls(username, page, size) {
-//     page = page || 0;
-//     size = size || POLL_LIST_SIZE;
-
-//     return request({
-//         url: API_BASE_URL + "/users/" + username + "/votes?page=" + page + "&size=" + size,
-//         method: 'GET'
-//     });
-// }

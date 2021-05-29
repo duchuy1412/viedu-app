@@ -2,7 +2,7 @@ import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import { Button, Checkbox, Form, Input, notification } from "antd";
 import React from "react";
 import "./Login.css";
-import { ACCESS_TOKEN } from "../../../constants";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../../constants";
 import { login } from "../../../util/APIUtils";
 
 const Login = (props) => {
@@ -25,6 +25,7 @@ const LoginForm = (props) => {
     login(loginRequest)
       .then((response) => {
         localStorage.setItem(ACCESS_TOKEN, response.token);
+        localStorage.setItem(REFRESH_TOKEN, response.refreshToken);
         props.onLogin();
       })
       .catch((error) => {
