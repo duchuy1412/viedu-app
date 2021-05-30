@@ -198,14 +198,14 @@ function Instruction(props) {
   const options = question
     ? question.questionType === QuestionType.QUESTION_CHOICE_ANSWER
       ? [
-          { icon: "A", color: "red" },
-          { icon: "B", color: "blue" },
-          { icon: "C", color: "orange" },
-          { icon: "D", color: "green" },
+          { icon: "A", color: "#d62d20" },
+          { icon: "B", color: "#0057e7" },
+          { icon: "C", color: "#ffa700" },
+          { icon: "D", color: "#008744" },
         ]
       : [
-          { icon: "A", color: "red" },
-          { icon: "B", color: "blue" },
+          { icon: "A", color: "#d62d20" },
+          { icon: "B", color: "#0057e7" },
         ]
     : [];
 

@@ -8,6 +8,7 @@ import Stomp from "stompjs";
 Name.propTypes = {};
 
 function Name(props) {
+  const [loading, setLoading] = useState(false);
   const history = useHistory();
   const location = useLocation();
   const { state } = location;
@@ -18,7 +19,8 @@ function Name(props) {
     setName(e.target.value);
   };
 
-  const hanldeOk = () => {
+  const hanldeOk = async () => {
+    setLoading(true);
     connect();
   };
 
@@ -70,7 +72,7 @@ function Name(props) {
         stompClient.disconnect();
       }
     };
-  });
+  }, []);
 
   return (
     <div
@@ -92,6 +94,7 @@ function Name(props) {
               autoFocus
             />
             <Button
+              loading={loading}
               style={{ width: "100%", marginTop: 10 }}
               type="primary"
               onClick={hanldeOk}

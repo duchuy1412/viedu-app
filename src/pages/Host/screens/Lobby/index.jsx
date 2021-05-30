@@ -20,6 +20,8 @@ import useSound from "use-sound";
 
 import bgfx from "assets/sounds/BeLikeAChild.mp3";
 
+import "./lobbyStyle.css";
+
 var QRCode = require("qrcode.react");
 
 const ToolBar = styled.div`
@@ -207,7 +209,12 @@ function Lobby(props) {
             }}
           >
             <ColorBox>
-              Join at <b>www.viedu.tech/go</b> with PIN: <h1>{game.pin}</h1>
+              Join at
+              <span class="blink_instruction">
+                <b> www.viedu.tech/go </b>
+              </span>
+              with PIN:
+              <h1>{game.pin}</h1>
             </ColorBox>
 
             <QRCode value={"https://viedu.tech/go/pin/" + game.pin} />
@@ -279,7 +286,9 @@ function BoardName(props) {
                 width: "fit-content",
               }}
             >
-              Waiting for players...
+              Waiting for players <span class="loader__dot">.</span>
+              <span class="loader__dot">.</span>
+              <span class="loader__dot">.</span>
             </h3>
           </span>
         )
