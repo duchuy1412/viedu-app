@@ -150,6 +150,7 @@ function ReportDetail(props) {
     getGame(gameId)
       .then((response) => {
         if (mounted) {
+          console.log(response);
           setGame(response);
         }
       })
