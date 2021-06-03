@@ -46,7 +46,7 @@ function QuestionList(props) {
       dataIndex: "image",
       render: (text, record) => {
         return text ? (
-          <Image alt="media" preview={false} src={resoleImageURI(text)} />
+          <Image preview={false} alt="media" src={resoleImageURI(text)} />
         ) : (
           "No image"
         );

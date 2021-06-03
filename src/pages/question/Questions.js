@@ -115,7 +115,7 @@ const Questions = (props) => {
   }
 
   const onSearch = () => {
-    alert("searching...");
+    // alert("searching...");
   };
 
   return (

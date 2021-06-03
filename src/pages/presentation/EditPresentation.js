@@ -233,16 +233,12 @@ const EditPresentation = () => {
 
   // handle when click menu Import
   function handleMenuClick(e) {
-    // message.info("Click on menu item.");
-    // console.log("click", e.key);
     switch (e.key) {
       case "1":
-        // console.log("Choose from bank");
         questionBankDrawer.current.showDrawer();
         break;
       case "2":
-        // console.log("clicked 2");
-        alert("Coming Soon...");
+        alert("This feature is not available now");
         break;
       default:
         break;
@@ -362,7 +358,10 @@ const EditPresentation = () => {
                 }}
               >
                 <span>{index + 1}</span>
-                <StyledTinyButton type="text">
+                <StyledTinyButton
+                  type="text"
+                  onClick={() => alert("This future is not available now!")}
+                >
                   <BlockOutlined />
                 </StyledTinyButton>
                 <StyledTinyButton
@@ -379,6 +378,7 @@ const EditPresentation = () => {
               >
                 <SingleSlide
                   text={slide.title}
+                  image={slide.image}
                   isActive={slide.id === questions.activeId}
                 />
               </div>
