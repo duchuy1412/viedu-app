@@ -48,7 +48,7 @@ function Name(props) {
       })
     );
 
-    localStorage.setItem("nickname", name);
+    // localStorage.setItem("nickname", name);
   }
 
   function onError(error) {
@@ -60,10 +60,11 @@ function Name(props) {
   function onMessageReceived(payload) {
     let msgReceived = JSON.parse(payload.body);
 
-    history.push(`${state.rootPath}/lobby`, {
-      pin: state.pin,
-      nickname: msgReceived.sender,
-    });
+    msgReceived.type === "JOIN" &&
+      history.push(`${state.rootPath}/lobby`, {
+        pin: state.pin,
+        nickname: msgReceived.sender,
+      });
   }
 
   useEffect(() => {

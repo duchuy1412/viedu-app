@@ -43,6 +43,7 @@ const OptionBox = styled(Button)`
   border: 1px solid black;
   border-radius: 8px;
   margin: 5px;
+  word-wrap: break-word;
 `;
 
 var stompClient = null;
@@ -211,6 +212,7 @@ function Instruction(props) {
 
   const buttonOptions = options.map((option, index) => (
     <Col
+      key={index}
       span={12}
       style={{
         display: "flex",
