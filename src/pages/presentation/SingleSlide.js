@@ -1,8 +1,10 @@
-import { Col, Row, Typography } from "antd";
+import { PictureTwoTone } from "@ant-design/icons";
+import { Col, Image, Row, Typography } from "antd";
 import PropTypes from "prop-types";
 import React from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
+import { resoleImageURI } from "util/ImageURI";
 
 SingleSlide.propTypes = {
   text: PropTypes.string,
@@ -23,7 +25,7 @@ const StyledSlide = styled.div`
   border-radius: 3px;
 `;
 function SingleSlide(props) {
-  const { isActive, text } = props;
+  const { isActive, text, image } = props;
 
   const slide = useSelector((state) => state.slides);
 
@@ -41,6 +43,29 @@ function SingleSlide(props) {
               : "No title"}
           </Text>
         </Col>
+      </Row>
+      <Row>
+        <Col span={8}></Col>
+        <Col span={8}>
+          {isActive && slide.current.image && (
+            <Image
+              style={{ maxHeight: "100%" }}
+              alt="media"
+              preview={false}
+              src={resoleImageURI(slide.current.image)}
+            />
+          )}
+
+          {!isActive && image && (
+            <Image
+              style={{ maxHeight: "100%" }}
+              alt="media"
+              preview={false}
+              src={resoleImageURI(image)}
+            />
+          )}
+        </Col>
+        <Col span={8}></Col>
       </Row>
     </StyledSlide>
   );

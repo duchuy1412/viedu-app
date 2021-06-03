@@ -1,11 +1,13 @@
-import { Button, Drawer, List, message } from "antd";
+import { Button, Drawer, List, message, Tag } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import React, { useEffect, useState } from "react";
+import { ThemeProvider } from "styled-components";
 import {
   addToPresentation,
   countQuestions,
   getAllQuestions,
 } from "util/APIUtils";
+import { getQuestionType } from "util/QuestionType";
 
 const { forwardRef, useImperativeHandle } = React;
 
@@ -49,7 +51,7 @@ const QuestionBankDrawer = forwardRef((props, ref) => {
   const handleChangePage = (page) => {
     setLoading(true);
 
-    getAllQuestions(page, 2).then((response) => {
+    getAllQuestions(page, 3).then((response) => {
       setData(response);
       setLoading(false);
     });
@@ -116,7 +118,7 @@ const QuestionBankDrawer = forwardRef((props, ref) => {
           pagination={{
             onChange: handleChangePage,
             total: pagination.total,
-            pageSize: 2,
+            pageSize: 3,
           }}
           dataSource={data}
           loading={loading}
@@ -132,7 +134,11 @@ const QuestionBankDrawer = forwardRef((props, ref) => {
                   />
                 }
                 title={<a href={item.href}>{item.title}</a>}
-                description={item.questionType}
+                description={
+                  <Tag color="#40a9ff">
+                    {getQuestionType(item.questionType)}
+                  </Tag>
+                }
               />
               {item.content}
             </List.Item>
